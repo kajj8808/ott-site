@@ -6,11 +6,11 @@ export default async function Home() {
   const seiresList = await getNowPlayingSeries();
 
   return (
-    <div className="p-3 flex flex-col items-center sm:items-start">
+    <div className="px-8 flex flex-col items-center sm:items-start">
       <div className="flex justify-between w-full">
         <div>
-          <h4 className="text-sm text-neutral-600">Series</h4>
-          <h3 className="font-semibold text-4xl">Now Playing</h3>
+          <h4 className="text-xs text-neutral-600">Series</h4>
+          <h3 className="font-semibold text-xl">Now Playing</h3>
         </div>
         <div className="flex flex-col items-end">
           <h4 className="text-sm text-neutral-600">BETA Version</h4>

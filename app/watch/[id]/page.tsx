@@ -20,7 +20,7 @@ export default async function Page({
   }
 
   return (
-    <div className="flex h-dvh items-center w-full">
+    <div className="flex h-dvh items-center w-full -mt-20">
       <div className="flex justify-center w-full">
         <VideoPlayer
           watchId={result.watch_id}
