@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Season } from "../series/[id]/action";
+import { Season, Episode } from "../series/[id]/action";
 import { ChangeEvent, useEffect, useState } from "react";
 
 export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
   const [season, setSeason] = useState<Season | undefined>(undefined);
+  const [sortedEpisodes, setSortedEpisodes] = useState<Episode[]>([]);
 
   useEffect(() => {
     if (seasons.length > 0) {
@@ -25,6 +26,15 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
       setSeason(sortedSeasons[0]);
     }
   }, [seasons]);
+
+  useEffect(() => {
+    if (season?.episodes) {
+      const sortedEpisodes = season.episodes.sort((a, b) => {
+        return a.episode_number - b.episode_number;
+      });
+      setSortedEpisodes(sortedEpisodes);
+    }
+  }, [season]);
 
   const onSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     seasons.forEach((season) => {
@@ -53,7 +63,7 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
         )}
       </div>
       <div className="flex flex-col px-3">
-        {season?.episodes.map((episode) => (
+        {sortedEpisodes.map((episode) => (
           <Link
             key={episode.video_content_id}
             className="grid grid-cols-12 py-3 gap-3 border-b border-white/20 hover:bg-white/20 transition-colors cursor-pointer px-2 nth-[1]:border-t"

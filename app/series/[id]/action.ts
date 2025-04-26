@@ -1,4 +1,4 @@
-interface Episode {
+export interface Episode {
   overview: string;
   name: string;
   episode_number: number;

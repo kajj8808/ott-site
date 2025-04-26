@@ -11,7 +11,7 @@ export default function VideoPlayer({ watchId, subtitleId }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   useEffect(() => {
     if (videoRef.current) {
-      console.log(videoRef.current);
+      videoRef.current.volume = 0.25;
     }
   }, []);
   return (

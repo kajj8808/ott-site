@@ -1,4 +1,4 @@
-interface Series {
+export interface Series {
   id: number;
   title: string;
   overview: string;
@@ -20,6 +20,18 @@ export async function getNowPlayingSeries() {
     await fetch(
       `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/now_playing`
     )
+  ).json()) as SeriesResponse;
+
+  if (!json.ok) {
+    return null;
+  }
+
+  return json.result;
+}
+
+export async function getSeriesIncludingDb() {
+  const json = (await (
+    await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/bd`)
   ).json()) as SeriesResponse;
 
   if (!json.ok) {

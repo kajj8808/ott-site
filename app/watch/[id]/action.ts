@@ -18,6 +18,7 @@ export interface VideoContent {
 
   season: Season | null;
   series: Series | null;
+  next_episode: Episode | null;
 }
 
 export interface Episode {
@@ -72,6 +73,9 @@ export async function getVideoContentDetail(contentId: string) {
       `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${contentId}`
     )
   ).json()) as VideoResponse;
+  console.log(
+    `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${contentId}`
+  );
 
   if (json.ok) {
     return json.result;

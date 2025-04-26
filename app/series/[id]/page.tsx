@@ -4,13 +4,21 @@ import { notFound } from "next/navigation";
 import { getSeriesDetail } from "./action";
 import SeasonEpisodeList from "@/app/components/SeasonEpisodeList";
 
+import { unstable_cache as nextCache } from "next/cache";
+
+const getCachedSeriesDetail = nextCache(
+  async (id) => await getSeriesDetail(id),
+  ["series_detail"],
+  { revalidate: 520, tags: ["series"] }
+); // 3600 -> 1hour
+
 export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const seires = await getSeriesDetail(id);
+  const seires = await getCachedSeriesDetail(id);
 
   if (!seires) {
     return notFound();
