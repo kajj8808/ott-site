@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Season, Episode } from "../series/[id]/action";
 import { ChangeEvent, useEffect, useState } from "react";
+import { Episode, Season } from "../(private)/series/[id]/action";
 
 export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
   const [season, setSeason] = useState<Season | undefined>(undefined);

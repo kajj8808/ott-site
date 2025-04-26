@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Series } from "../(home)/action";
 import Image from "next/image";
+import { Series } from "../(private)/(home)/action";
 
 export default function SeriesList({
   seriesList,

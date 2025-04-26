@@ -1,9 +1,10 @@
 import { getNowPlayingSeries, getSeriesIncludingDb } from "./action";
 
-import SeriesList from "../components/SeriesList";
+import SeriesList from "../../components/SeriesList";
 import { notFound } from "next/navigation";
 
 import { unstable_cache as nextCache } from "next/cache";
+import { authWithUserSession } from "@/app/lib/server/auth";
 
 const getCachedSeries = nextCache(
   async () => {
@@ -16,6 +17,8 @@ const getCachedSeries = nextCache(
 ); // 3600 -> 1hour
 
 export default async function Home() {
+  const userSession = authWithUserSession();
+
   const { dbSeries, nowPlayingSeries } = await getCachedSeries();
 
   if (!nowPlayingSeries || !dbSeries) {
