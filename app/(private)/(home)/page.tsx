@@ -17,7 +17,7 @@ const getCachedSeries = nextCache(
 ); // 3600 -> 1hour
 
 export default async function Home() {
-  const userSession = authWithUserSession();
+  authWithUserSession();
 
   const { dbSeries, nowPlayingSeries } = await getCachedSeries();
 
