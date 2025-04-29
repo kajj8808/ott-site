@@ -40,3 +40,15 @@ export async function getSeriesIncludingDb() {
 
   return json.result;
 }
+
+export async function getAllSeries() {
+  const json = (await (
+    await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/all`)
+  ).json()) as SeriesResponse;
+
+  if (!json.ok) {
+    return null;
+  }
+
+  return json.result;
+}

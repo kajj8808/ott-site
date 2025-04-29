@@ -30,7 +30,7 @@ export default async function Page({
 
   return (
     <div className="flex h-dvh items-center w-full -mt-20 relative">
-      <div className="flex justify-center w-full relative">
+      <div className="flex justify-center w-full relative max-h-dvh">
         <VideoPlayer
           watchId={result.watch_id}
           subtitleId={result.subtitle_id}
@@ -39,7 +39,7 @@ export default async function Page({
       {result.next_episode ? (
         <Link
           href={`/watch/${result.next_episode.video_content_id}`}
-          className="absolute z-40 bottom-8 right-8 font-semibold text-sm border px-3 py-1.5 rounded-md hover:bg-white/20 transition-colors cursor-pointer"
+          className="absolute z-40 bottom-8 right-8 font-semibold text-sm border px-3 py-1.5 rounded-md hover:bg-white/20 transition-colors cursor-pointer bg-background"
         >
           다음화
         </Link>

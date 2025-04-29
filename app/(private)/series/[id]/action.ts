@@ -31,7 +31,6 @@ export async function getSeriesDetail(seriesId: string) {
   ).json()) as SeriesResponse;
 
   if (json.ok) {
-    console.log(json.series.season[0].episodes);
     return json.series;
   }
 }
