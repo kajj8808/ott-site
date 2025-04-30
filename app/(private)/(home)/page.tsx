@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 
 import { unstable_cache as nextCache } from "next/cache";
 import { authWithUserSession } from "@/app/lib/server/auth";
+import Header from "@/app/components/Header";
 
 const getCachedSeries = nextCache(
   async () => {
@@ -31,14 +32,17 @@ export default async function Home() {
   }
 
   return (
-    <div className="px-8 pb-5 flex flex-col items-center sm:items-start gap-5">
-      <SeriesList title="Now Playing" seriesList={nowPlayingSeries} />
-      <SeriesList title="BD" seriesList={dbSeries} />
-      <SeriesList title="ALL" seriesList={allSeires} />
-      <footer className="right-0 bottom-0 fixed flex flex-col items-center m-2 p-3 bg-background rounded-md">
-        <h4 className="text-sm text-neutral-600">BETA Version</h4>
-        <h4 className="text-sm text-neutral-600">next : 15.3.0</h4>
-      </footer>
+    <div>
+      <Header />
+      <div className="px-8 pb-5 flex flex-col items-center sm:items-start gap-5 mt-20">
+        <SeriesList title="Now Playing" seriesList={nowPlayingSeries} />
+        <SeriesList title="BD" seriesList={dbSeries} />
+        <SeriesList title="ALL" seriesList={allSeires} />
+        <footer className="right-0 bottom-0 fixed flex flex-col items-center m-2 p-3 bg-background rounded-md">
+          <h4 className="text-sm text-neutral-600">BETA Version</h4>
+          <h4 className="text-sm text-neutral-600">next : 15.3.0</h4>
+        </footer>
+      </div>
     </div>
   );
 }
