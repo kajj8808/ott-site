@@ -10,7 +10,7 @@ import Header from "@/app/components/Header";
 const getCachedSeriesDetail = nextCache(
   async (id) => await getSeriesDetail(id),
   ["series_detail"],
-  { revalidate: 520, tags: ["series"] }
+  { revalidate: 520, tags: ["series"] },
 ); // 3600 -> 1hour
 
 export default async function Page({
@@ -28,18 +28,18 @@ export default async function Page({
   return (
     <div>
       <Header />
-      <div className="flex justify-center mt-20">
-        <div className="max-w-4xl w-full">
+      <div className="mt-20 flex justify-center">
+        <div className="w-full max-w-4xl">
           <div className="relative aspect-video">
             <Image src={seires.backdrop_path} fill alt={seires.title} />
-            <div className="bg-gradient-to-b from-transparent via-transparent to-background w-full h-full absolute left-0 top-0"></div>
+            <div className="to-background absolute top-0 left-0 h-full w-full bg-gradient-to-b from-transparent via-transparent"></div>
             <div className="absolute bottom-3">
-              <h3 className="font-semibold text-2xl sm:text-3xl pl-3">
+              <h3 className="pl-3 text-2xl font-semibold sm:text-3xl">
                 {seires.title}
               </h3>
             </div>
           </div>
-          <div className="px-3 pb-5 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 px-3 pb-5">
             <span className="line-clamp-2 text-sm">{seires.overview}</span>
             <p className="text-sm">{daysAgo(seires.updated_at)} 업데이트</p>
           </div>
