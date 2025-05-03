@@ -3,10 +3,9 @@ import { getVideoContentDetail } from "./action";
 import { Metadata } from "next";
 
 import { unstable_cache as nextCache } from "next/cache";
-import VideoPlayerLayout from "@/app/components/VideoPlayerLayout";
 
 export const metadata: Metadata = {
-  title: "watch",
+  title: "",
   description: "",
 };
 
@@ -30,18 +29,15 @@ export default async function Page({
 
   return (
     <div>
-      {/* FIXME: 이부분 seires => 반응형으로 movie 등.. */}
-      <VideoPlayerLayout
+      {/* // FIXME: 이부분 seires => 반응형으로 movie 등.. */}
+      <VideoPlayer
         title={`${result.season?.name} ${result.episode?.episode_number}화
-      ${result.episode?.name}`}
+        ${result.episode?.name}`}
         goBackLink={result.series?.id ? `/series/${result.series.id}` : "/"}
+        subtitleId={result.subtitle_id}
+        watchId={result.watch_id}
         nextEpisode={result.next_episode}
-      >
-        <VideoPlayer
-          watchId={result.watch_id}
-          subtitleId={result.subtitle_id}
-        />
-      </VideoPlayerLayout>
+      />
     </div>
   );
 }
