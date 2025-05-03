@@ -3,8 +3,9 @@
 import type { Episode } from "../(private)/watch/[id]/action";
 
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { cls } from "../utils/libs";
 
 interface VideoPlayerLayoutProps {
   children: React.ReactNode;
@@ -19,7 +20,11 @@ export default function VideoPlayerLayout({
   nextEpisode,
   title,
 }: VideoPlayerLayoutProps) {
-  const onMouseMove = () => {};
+  const [isHover, setIsHover] = useState(false);
+  const onMouseMove = () => {
+    setIsHover(true);
+    setTimeout(() => setIsHover(false), 2000);
+  };
   return (
     <div
       className="relative flex h-dvh w-full items-center"
@@ -27,14 +32,22 @@ export default function VideoPlayerLayout({
     >
       <Link
         href={goBackLink}
-        className="fixed top-10 left-8 z-40 opacity-0 transition-opacity"
+        className={cls(
+          "fixed top-10 left-8 z-40 transition-opacity",
+          isHover ? "opacity-100" : "opacity-0",
+        )}
       >
         <ArrowLeftIcon className="w-10" />
       </Link>
       <div className="relative flex max-h-dvh w-full justify-center">
         {children}
       </div>
-      <div className="fixed bottom-0 flex h-24 w-full items-center justify-center border-t border-white/20 opacity-0 transition-opacity">
+      <div
+        className={cls(
+          "fixed bottom-0 flex h-24 w-full items-center justify-center border-t border-white/20 transition-opacity",
+          isHover ? "opacity-100" : "opacity-0",
+        )}
+      >
         {nextEpisode ? (
           <Link
             href={`/watch/${nextEpisode.video_content_id}`}
