@@ -19,7 +19,7 @@ const getCachedSeries = nextCache(
     return { nowPlayingSeries, dbSeries, allSeires };
   },
   ["series"],
-  { revalidate: 520, tags: ["home"] }
+  { revalidate: 520, tags: ["home"] },
 ); // 3600 -> 1hour
 
 export default async function Home() {
@@ -34,13 +34,12 @@ export default async function Home() {
   return (
     <div>
       <Header />
-      <div className="px-8 pb-5 flex flex-col items-center sm:items-start gap-5 mt-20">
+      <div className="mt-20 flex flex-col items-center gap-5 px-8 pb-5 sm:items-start">
         <SeriesList title="Now Playing" seriesList={nowPlayingSeries} />
         <SeriesList title="BD" seriesList={dbSeries} />
         <SeriesList title="ALL" seriesList={allSeires} />
-        <footer className="right-0 bottom-0 fixed flex flex-col items-center m-2 p-3 bg-background rounded-md">
-          <h4 className="text-sm text-neutral-600">BETA Version</h4>
-          <h4 className="text-sm text-neutral-600">next : 15.3.0</h4>
+        <footer className="bg-background fixed right-0 bottom-0 m-2 flex flex-col items-center rounded-sm p-3">
+          <h4 className="text-sm text-neutral-600">BETA</h4>
         </footer>
       </div>
     </div>

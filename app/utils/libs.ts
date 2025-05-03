@@ -26,3 +26,7 @@ export function daysAgo(dateString: string) {
 
   return `${diffDays}일 전`;
 }
+
+export function cls(...classList: string[]) {
+  return classList.join(" ");
+}
