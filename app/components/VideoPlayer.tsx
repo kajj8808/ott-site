@@ -24,7 +24,7 @@ export default function VideoPlayer({
   subtitleId,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [isHover, setIsHover] = useState(true);
+  const [isHover, setIsHover] = useState(false);
   const onMouseMove = () => {
     setIsHover(true);
     setTimeout(() => setIsHover(false), 3000);
@@ -33,6 +33,7 @@ export default function VideoPlayer({
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.volume = 0.25;
+      videoRef.current.play();
     }
   }, []);
 
@@ -65,11 +66,11 @@ export default function VideoPlayer({
       </div>
       <div
         className={cls(
-          "fixed bottom-0 flex h-24 w-full items-center justify-center border-t border-white/20 transition-opacity group-hover:opacity-100",
+          "fixed bottom-0 flex h-24 w-full items-center justify-center border-white/20 transition-opacity group-hover:opacity-100",
           isHover ? "opacity-100" : "opacity-0",
         )}
       >
-        <div className="absolute -top-3 w-full">
+        <div className="absolute -top-0 w-full border-t border-neutral-700">
           {/*  <input
             type="range"
             defaultValue={0}
@@ -77,6 +78,8 @@ export default function VideoPlayer({
             max={1000}
             className="bg-background w-full"
           /> */}
+          {/*           <div className="absolute h-1 w-full bg-white/30"></div>
+          <div className="absolute h-1 w-1/3 rounded-r-md bg-white"></div> */}
         </div>
         <div>
           <span>{title}</span>
