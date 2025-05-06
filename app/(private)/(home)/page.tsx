@@ -8,7 +8,6 @@ import SeriesList from "../../components/SeriesList";
 import { notFound } from "next/navigation";
 
 import { unstable_cache as nextCache } from "next/cache";
-import { authWithUserSession } from "@/app/lib/server/auth";
 import Header from "@/app/components/Header";
 
 const getCachedSeries = nextCache(
@@ -23,8 +22,6 @@ const getCachedSeries = nextCache(
 ); // 3600 -> 1hour
 
 export default async function Home() {
-  await authWithUserSession();
-
   const { dbSeries, nowPlayingSeries, allSeires } = await getCachedSeries();
 
   if (!nowPlayingSeries || !dbSeries || !allSeires) {

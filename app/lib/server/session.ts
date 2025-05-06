@@ -1,10 +1,11 @@
+import { User } from "@/app/(sign)/log-in/action";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 
 import "server-only";
 
 interface SessionContent {
-  id?: number;
+  user?: User;
 }
 
 export async function getUserSession() {

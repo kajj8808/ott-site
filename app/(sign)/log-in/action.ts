@@ -5,8 +5,16 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export interface User {
-  id: number;
-  email: string;
+  id?: number;
+  email?: string;
+  avatar?: string;
+  role?: "USER" | "ADMIN";
+  membership?: {
+    id: number;
+    type: string;
+    started_at: string;
+    expires_at: string;
+  };
 }
 
 interface UserResponse {
@@ -23,6 +31,7 @@ export async function login(formData: FormData) {
     email: formData.get("email"),
   };
   const result = formSchema.safeParse(data);
+
   if (!result.success) {
     // return { errors: result.error.flatten() };
   } else {
@@ -35,13 +44,14 @@ export async function login(formData: FormData) {
             "content-type": "application/json",
           },
           body: JSON.stringify(result.data),
-        }
+        },
       )
     ).json()) as UserResponse;
 
     if (json.user) {
       const cookie = await getUserSession();
-      cookie.id = json.user.id;
+      cookie.user = json.user;
+
       await cookie.save();
       return redirect("/");
     }

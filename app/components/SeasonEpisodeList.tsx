@@ -46,7 +46,7 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
 
   return (
     <>
-      <div className="flex justify-between pb-3 font-medium text-base sm:text-lg px-3">
+      <div className="flex justify-between px-3 pb-3 text-base font-medium sm:text-lg">
         <p>{season?.source_type}</p>
         {seasons.length < 2 ? (
           <p>{season?.name}</p>
@@ -66,10 +66,10 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
         {sortedEpisodes.map((episode) => (
           <Link
             key={episode.video_content_id}
-            className="grid grid-cols-12 py-3 gap-3 border-b border-white/20 hover:bg-white/20 transition-colors cursor-pointer px-2 nth-[1]:border-t"
+            className="grid cursor-pointer grid-cols-12 gap-3 border-b border-white/20 px-2 py-3 transition-colors hover:bg-white/20 nth-[1]:border-t"
             href={`/watch/${episode.video_content_id}`}
           >
-            <div className="col-span-3 rounded-md overflow-hidden">
+            <div className="col-span-3 overflow-hidden rounded-md">
               <Image
                 src={episode.still_path}
                 alt={episode.video_content_id + ""}
@@ -77,12 +77,12 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
                 height={144}
               />
             </div>
-            <div className="w-full col-span-9 flex flex-col h-full pt-1.5 sm:pt-2 gap-1 sm:gap-2">
-              <div className="flex justify-between font-semibold text-sm smLtext-base">
+            <div className="col-span-9 flex h-full w-full flex-col gap-1 pt-1.5 sm:gap-2 sm:pt-2">
+              <div className="flex justify-between text-sm font-semibold sm:text-base">
                 <h5>{episode.name}</h5>
                 <h5>{episode.runtime}분</h5>
               </div>
-              <p className="text-sm opacity-90 text-pretty line-clamp-1 sm:line-clamp-2">
+              <p className="line-clamp-1 text-sm text-pretty opacity-90 sm:line-clamp-2">
                 {episode.overview}
               </p>
             </div>
