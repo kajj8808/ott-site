@@ -28,7 +28,7 @@ const formSchema = z.object({
 
 export async function login(formData: FormData) {
   const data = {
-    email: formData.get("email"),
+    email: formData.get("email")?.toString().trim(),
   };
   const result = formSchema.safeParse(data);
 
