@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ArrowLeftIcon,
   ArrowsPointingOutIcon,
+  ForwardIcon,
   PlayIcon,
   WifiIcon,
 } from "@heroicons/react/24/outline";
@@ -67,7 +68,7 @@ export default function VideoPlayer({
     setIsFullScreen((prev) => !prev);
   };
 
-  const onProgressBarClick = (
+  const progressBarMoveHandler = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     const progressBar = event.currentTarget;
@@ -104,11 +105,11 @@ export default function VideoPlayer({
     };
 
     video.volume = 0.25;
-    video.play();
     video.addEventListener("loadedmetadata", handleLoadedMetaData);
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("seeking", handelSeeking); // video 재생 위치 변경
     video.addEventListener("canplay", handelCanPlay); // video 로딩이 완료시시
+    video.play();
 
     return () => {
       video.removeEventListener("loadedmetadata", handleLoadedMetaData);
@@ -127,7 +128,7 @@ export default function VideoPlayer({
       <Link
         href={goBackLink}
         className={cls(
-          "fixed top-10 left-8 z-40 transition-opacity group-hover:opacity-100",
+          "fixed top-10 left-8 z-40 rounded-md p-1.5 transition-opacity group-hover:opacity-100 hover:bg-white/20",
           isHover ? "opacity-100" : "opacity-0",
         )}
       >
@@ -151,14 +152,15 @@ export default function VideoPlayer({
       </div>
       <div
         className={cls(
-          "fixed bottom-0 z-40 flex h-24 w-full items-center transition-opacity group-hover:opacity-100",
+          "fixed bottom-0 z-40 flex h-24 w-full items-center transition-opacity select-none group-hover:opacity-100 lg:h-28",
           isHover ? "opacity-100" : "opacity-0",
         )}
       >
         {/* progress bar start */}
         <div
-          className="absolute -top-0 h-0.5 w-full cursor-pointer transition-all hover:-top-1 hover:h-1.5"
-          onClick={onProgressBarClick}
+          className="absolute -top-0 h-1 w-full cursor-pointer transition-all hover:-top-0.5 hover:h-2"
+          onClick={progressBarMoveHandler}
+          onDragEnd={progressBarMoveHandler}
         >
           {/*  <input
             type="range"
@@ -179,45 +181,58 @@ export default function VideoPlayer({
         {/* status bar start */}
         <div className="grid w-full grid-cols-3 px-9">
           <div className="flex items-center">
-            {isPlaying ? (
-              <PauseIcon
-                className="size-8 cursor-pointer"
-                onClick={togglePlay}
-              />
-            ) : (
-              <PlayIcon
-                className="size-8 cursor-pointer"
-                onClick={togglePlay}
-              />
-            )}
+            <div className="rounded-md p-1.5 hover:bg-white/20">
+              {isPlaying ? (
+                <PauseIcon
+                  className="size-8 cursor-pointer"
+                  onClick={togglePlay}
+                />
+              ) : (
+                <PlayIcon
+                  className="size-8 cursor-pointer"
+                  onClick={togglePlay}
+                />
+              )}
+            </div>
           </div>
           <div className="flex w-full items-center justify-center select-none">
-            <span>{title}</span>
+            <span className="line-clamp-1 lg:text-lg">{title}</span>
           </div>
-          <div className="flex items-center justify-end">
-            {isFullScreen ? (
-              <ArrowsPointingInIcon
-                className="size-7"
-                onClick={toggleFullScreen}
-              />
-            ) : (
-              <ArrowsPointingOutIcon
-                className="size-7"
-                onClick={toggleFullScreen}
-              />
+
+          <div className="flex items-center justify-end gap-1">
+            {nextEpisode && (
+              <Link
+                href={`/watch/${nextEpisode.video_content_id}`}
+                className="bg-background cursor-pointer rounded-md px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
+              >
+                <ForwardIcon className="size-8" />
+              </Link>
             )}
+            <div className="rounded-md p-1.5 hover:bg-white/20">
+              {isFullScreen ? (
+                <ArrowsPointingInIcon
+                  className="size-7 cursor-pointer"
+                  onClick={toggleFullScreen}
+                />
+              ) : (
+                <ArrowsPointingOutIcon
+                  className="size-7 cursor-pointer"
+                  onClick={toggleFullScreen}
+                />
+              )}
+            </div>
           </div>
         </div>
         {/* status bar end */}
         {/* TODO: 시간 얼마 안남았을 경우 뜨게.. */}
-        {nextEpisode ? (
+        {/*  {nextEpisode ? (
           <Link
             href={`/watch/${nextEpisode.video_content_id}`}
             className="bg-background absolute -top-12 right-8 z-40 cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
           >
             다음화
           </Link>
-        ) : null}
+        ) : null} */}
       </div>
       {/* Loading... start*/}
       {isLoading && (
