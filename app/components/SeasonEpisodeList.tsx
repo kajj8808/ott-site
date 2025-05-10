@@ -79,7 +79,9 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
             </div>
             <div className="col-span-9 flex h-full w-full flex-col gap-1 pt-1.5 sm:gap-2 sm:pt-2">
               <div className="flex justify-between text-sm font-semibold sm:text-base">
-                <h5>{episode.name}</h5>
+                <h5>
+                  {episode.episode_number}.{episode.name}
+                </h5>
                 <h5>{episode.runtime}분</h5>
               </div>
               <p className="line-clamp-1 text-sm text-pretty opacity-90 sm:line-clamp-2">
