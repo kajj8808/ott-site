@@ -4,7 +4,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   env: {},
   images: {
-    remotePatterns: [{ hostname: "image.tmdb.org" }],
+    remotePatterns: [
+      { hostname: "image.tmdb.org" },
+      { hostname: "kajj8808.com" },
+    ],
   },
 };
 
