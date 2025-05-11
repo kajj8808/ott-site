@@ -1,5 +1,7 @@
 "use server";
 
+import { getUserSession } from "@/app/lib/server/session";
+
 export interface VideoContent {
   id: number;
   watch_id: string;
@@ -70,11 +72,40 @@ interface VideoResponse {
 export async function getVideoContentDetail(contentId: string) {
   const json = (await (
     await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${contentId}`
+      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${contentId}`,
     )
   ).json()) as VideoResponse;
 
   if (json.ok) {
     return json.result;
   }
+}
+
+interface UpdateWatchRecordProps {
+  watchId: string;
+  duration: number;
+  currentTime: number;
+}
+export async function updateWatchRecord({
+  watchId,
+  duration,
+  currentTime,
+}: UpdateWatchRecordProps) {
+  console.log(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}`);
+  const session = await getUserSession();
+  if (!session.user) {
+    return;
+  }
+  await fetch("http://localhost:3003/api/user/watch-record", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      watchId,
+      duration,
+      currentTime,
+      userId: session.user.id,
+    }),
+  });
 }

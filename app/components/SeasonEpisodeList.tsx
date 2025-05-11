@@ -80,7 +80,10 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
             <div className="col-span-9 flex h-full w-full flex-col gap-1 pt-1.5 sm:gap-2 sm:pt-2">
               <div className="flex justify-between text-sm font-semibold sm:text-base">
                 <h5>
-                  {episode.episode_number}.{episode.name}
+                  {episode.episode_number}.
+                  {episode.name.length > 18
+                    ? `${episode.name.slice(0, 18)}...`
+                    : episode.name}
                 </h5>
                 <h5>{episode.runtime}분</h5>
               </div>
