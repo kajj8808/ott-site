@@ -93,7 +93,7 @@ export default function VideoPlayer({
       >
         <ArrowLeftIcon className="w-10" />
       </Link>
-      <div className="relative flex max-h-dvh w-full justify-center">
+      <div className="relative flex max-h-9/12 w-full justify-center">
         <div className="flex w-full justify-center">
           <video
             ref={videoRef}
