@@ -91,21 +91,23 @@ export async function updateWatchRecord({
   duration,
   currentTime,
 }: UpdateWatchRecordProps) {
-  console.log(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}`);
   const session = await getUserSession();
   if (!session.user) {
     return;
   }
-  await fetch("http://localhost:3003/api/user/watch-record", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  await fetch(
+    `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/user/watch-record`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        watchId,
+        duration,
+        currentTime,
+        userId: session.user.id,
+      }),
     },
-    body: JSON.stringify({
-      watchId,
-      duration,
-      currentTime,
-      userId: session.user.id,
-    }),
-  });
+  );
 }
