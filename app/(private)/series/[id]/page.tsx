@@ -6,9 +6,10 @@ import SeasonEpisodeList from "@/app/components/SeasonEpisodeList";
 
 import { unstable_cache as nextCache } from "next/cache";
 import Header from "@/app/components/Header";
+import { getUserSession } from "@/app/lib/server/session";
 
 const getCachedSeriesDetail = nextCache(
-  async (id) => await getSeriesDetail(id),
+  async (id, userToken) => await getSeriesDetail(id, userToken),
   ["series_detail"],
   { revalidate: 520, tags: ["series"] },
 ); // 3600 -> 1hour
@@ -19,7 +20,10 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const seires = await getCachedSeriesDetail(id);
+  const userSession = await getUserSession();
+  const userToken = userSession.user?.token;
+
+  const seires = await getCachedSeriesDetail(id, userToken);
 
   if (!seires) {
     return notFound();

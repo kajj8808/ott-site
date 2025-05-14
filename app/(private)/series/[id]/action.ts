@@ -1,7 +1,6 @@
 "use server";
 
 import { destroyUserSession } from "@/app/lib/server/auth";
-import { getUserSession } from "@/app/lib/server/session";
 import { redirect } from "next/navigation";
 
 export interface Episode {
@@ -33,9 +32,7 @@ interface SeriesResponse {
     season: Season[];
   };
 }
-export async function getSeriesDetail(seriesId: string) {
-  const userSession = await getUserSession();
-  const userToken = userSession.user?.token;
+export async function getSeriesDetail(seriesId: string, userToken: string) {
   if (!userToken) {
     await destroyUserSession();
     redirect("/log-in");
