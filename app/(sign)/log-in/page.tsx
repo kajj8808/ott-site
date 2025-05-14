@@ -7,7 +7,7 @@ import SignButton from "@/app/components/SignButton";
 
 export default async function Page() {
   const session = await getUserSession();
-  if (session.user) {
+  if (session.user?.token) {
     redirect("/");
   }
   return (
