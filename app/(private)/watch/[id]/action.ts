@@ -101,12 +101,13 @@ export async function updateWatchRecord({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${session.user.token}`,
       },
+
       body: JSON.stringify({
         watchId,
         duration,
         currentTime,
-        userId: session.user.id,
       }),
     },
   );

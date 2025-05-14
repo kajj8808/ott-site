@@ -19,8 +19,8 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const seires = await getSeriesDetail(id);
-  console.log(seires);
+  const seires = await getCachedSeriesDetail(id);
+
   if (!seires) {
     return notFound();
   }
