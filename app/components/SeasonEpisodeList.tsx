@@ -80,7 +80,7 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
                 <div className="absolute bottom-0 left-0 h-1 w-full">
                   <div className="h-full bg-neutral-500" />
                   <div
-                    className="absolute top-0 z-30 h-full bg-red-600"
+                    className="absolute top-0 z-30 h-full bg-indigo-600"
                     style={{
                       width: `${((+episode.user_watch_progress[0].current_time * 100) / +episode.user_watch_progress[0].total_duration).toFixed(0)}%`,
                     }}

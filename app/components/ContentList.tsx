@@ -53,7 +53,7 @@ export default function ContentsList({
             <div className="relative mx-auto mt-2 w-3/4 overflow-hidden">
               <div className="h-1 rounded-xs bg-neutral-700"></div>
               <div
-                className="absolute top-0 z-30 h-1 rounded-xs bg-red-600"
+                className="absolute top-0 z-30 h-1 rounded-xs bg-indigo-600"
                 style={{
                   width: `${((+content.current_time * 100) / +content.total_duration).toFixed(0)}%`,
                 }}
