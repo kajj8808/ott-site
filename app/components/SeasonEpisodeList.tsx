@@ -69,13 +69,24 @@ export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
             className="grid cursor-pointer grid-cols-12 gap-3 border-b border-white/20 px-2 py-3 transition-colors hover:bg-white/20 nth-[1]:border-t"
             href={`/watch/${episode.video_content_id}`}
           >
-            <div className="col-span-3 overflow-hidden rounded-md">
+            <div className="relative col-span-3 overflow-hidden rounded-md">
               <Image
                 src={episode.still_path}
                 alt={episode.video_content_id + ""}
                 width={256}
                 height={144}
               />
+              {episode.user_watch_progress[0] ? (
+                <div className="absolute bottom-0 left-0 h-1 w-full">
+                  <div className="h-full bg-neutral-500" />
+                  <div
+                    className="absolute top-0 z-30 h-full bg-red-600"
+                    style={{
+                      width: `${((+episode.user_watch_progress[0].current_time * 100) / +episode.user_watch_progress[0].total_duration).toFixed(0)}%`,
+                    }}
+                  />
+                </div>
+              ) : null}
             </div>
             <div className="col-span-9 flex h-full w-full flex-col gap-1 pt-1.5 sm:gap-2 sm:pt-2">
               <div className="flex justify-between text-sm font-semibold sm:text-base">

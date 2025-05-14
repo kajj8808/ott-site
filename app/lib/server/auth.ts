@@ -12,3 +12,9 @@ export async function authWithUserSession() {
     return userSession;
   }
 }
+
+export async function destroyUserSession() {
+  const userSession = await getUserSession();
+  userSession.destroy();
+  redirect("/");
+}

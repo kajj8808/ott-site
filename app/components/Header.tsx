@@ -1,11 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { destroyUserSession } from "../lib/server/auth";
 
 export default function Header() {
   return (
-    <header className="fixed top-0 z-30 w-full backdrop-blur-sm">
-      <h3 className="px-8 py-5 text-lg font-semibold text-white">
+    <header className="fixed top-0 z-30 flex w-full justify-between px-8 py-5 backdrop-blur-sm">
+      <h3 className="text-lg font-semibold text-white">
         <Link href={"/"}>Streemo </Link>
       </h3>
+      <button
+        onClick={destroyUserSession}
+        className="cursor-pointer text-sm font-semibold"
+      >
+        Log out
+      </button>
     </header>
   );
 }

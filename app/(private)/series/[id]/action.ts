@@ -1,3 +1,9 @@
+"use server";
+
+import { destroyUserSession } from "@/app/lib/server/auth";
+import { getUserSession } from "@/app/lib/server/session";
+import { redirect } from "next/navigation";
+
 export interface Episode {
   overview: string;
   name: string;
@@ -6,6 +12,10 @@ export interface Episode {
   still_path: string;
   runtime: number;
   updated_at: string;
+  user_watch_progress: {
+    current_time: number;
+    total_duration: number;
+  }[];
 }
 export interface Season {
   name: string;
@@ -24,9 +34,21 @@ interface SeriesResponse {
   };
 }
 export async function getSeriesDetail(seriesId: string) {
+  const userSession = await getUserSession();
+  const userToken = userSession.user?.token;
+  if (!userToken) {
+    await destroyUserSession();
+    redirect("/log-in");
+  }
   const json = (await (
     await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/${seriesId}`
+      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/${seriesId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
     )
   ).json()) as SeriesResponse;
 

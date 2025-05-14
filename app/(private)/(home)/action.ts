@@ -1,12 +1,12 @@
+"use server";
+import { redirect } from "next/navigation";
+
 export interface Series {
   id: number;
   title: string;
   overview: string;
   logo: string | null;
   backdrop_path: string;
-  poster_path: string;
-  original: string | null;
-  status: string;
   updated_at: string;
 }
 
@@ -18,7 +18,7 @@ interface SeriesResponse {
 export async function getNowPlayingSeries() {
   const json = (await (
     await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/now_playing`
+      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/now_playing`,
     )
   ).json()) as SeriesResponse;
 
@@ -51,4 +51,47 @@ export async function getAllSeries() {
   }
 
   return json.result;
+}
+
+export interface VideoContent {
+  id: number;
+  title: string;
+  backdrop_path: string;
+  overview: string;
+  watched_at: string;
+  series_id: number;
+  movie_id: number;
+  type: "MOVIE" | "EPISODE";
+  total_duration: string;
+  current_time: string;
+}
+
+interface VideoContentResponse {
+  ok: boolean;
+  contents: VideoContent[];
+}
+
+export async function getUserWatingProgress(userToken: string | undefined) {
+  if (!userToken) {
+    redirect("/log-in");
+    return [];
+  }
+
+  const json = (await (
+    await fetch(
+      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/user/watch-progress`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    )
+  ).json()) as VideoContentResponse;
+
+  if (!json.ok) {
+    return [];
+  }
+
+  return json.contents;
 }

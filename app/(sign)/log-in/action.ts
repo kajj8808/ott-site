@@ -5,16 +5,15 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export interface User {
-  id?: number;
-  email?: string;
-  avatar?: string;
-  role?: "USER" | "ADMIN";
-  membership?: {
+  email: string;
+  avatar: string | null;
+  membership: {
     id: number;
     type: string;
     started_at: string;
-    expires_at: string;
+    expires_at: string | null;
   };
+  token: string;
 }
 
 interface UserResponse {
@@ -51,7 +50,6 @@ export async function login(formData: FormData) {
     if (json.user) {
       const cookie = await getUserSession();
       cookie.user = json.user;
-
       await cookie.save();
       return redirect("/");
     }

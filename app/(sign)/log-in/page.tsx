@@ -1,9 +1,15 @@
-import { getUserSession } from "@/app/lib/server/session";
 import { login } from "./action";
+
+import { getUserSession } from "@/app/lib/server/session";
+import { redirect } from "next/navigation";
+
 import SignButton from "@/app/components/SignButton";
 
 export default async function Page() {
-  await getUserSession();
+  const session = await getUserSession();
+  if (session.user) {
+    redirect("/");
+  }
   return (
     <div className="dark flex h-dvh items-center justify-center scheme-dark">
       <form
