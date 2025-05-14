@@ -13,14 +13,14 @@ import Header from "@/app/components/Header";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import ContentsList from "@/app/components/ContentList";
 
-/* const getCachedUserWatchProgress = nextCache(
-  async () => {
-    const userWatingProgrss = await getUserWatingProgress();
+const getCachedUserWatchProgress = nextCache(
+  async (userToken) => {
+    const userWatingProgrss = await getUserWatingProgress(userToken);
     return userWatingProgrss;
   },
   ["watch_progress"],
   { revalidate: 3600, tags: ["home", "watch_progress"] },
-); */
+);
 
 const getCachedSeries = nextCache(
   async () => {
@@ -41,19 +41,27 @@ export default async function Home() {
   if (!nowPlayingSeries || !dbSeries || !allSeires || !user) {
     return notFound();
   }
-  const watchingContents = await getUserWatingProgress(user.token);
+  const watchingContents = await getCachedUserWatchProgress(user.token);
 
   return (
     <div>
       <Header />
-      <div className="mt-20 flex flex-col items-center gap-5 px-8 pb-5 sm:items-start">
-        <ContentsList
-          title={`Continue Wathing for ${user.email}`}
-          contents={watchingContents}
+      <div className="mt-16 flex flex-col items-center gap-5 px-8 pb-5 sm:mt-20 sm:items-start">
+        {watchingContents[0] ? (
+          <ContentsList
+            title={`Continue Wathing for ${user.email}`}
+            subtitle="Contents"
+            contents={watchingContents}
+          />
+        ) : null}
+
+        <SeriesList
+          subtitle="Series"
+          title="Now Playing"
+          seriesList={nowPlayingSeries}
         />
-        <SeriesList title="Now Playing" seriesList={nowPlayingSeries} />
-        <SeriesList title="BD" seriesList={dbSeries} />
-        <SeriesList title="ALL" seriesList={allSeires} />
+        <SeriesList subtitle="Series" title="BD" seriesList={dbSeries} />
+        <SeriesList subtitle="Series" title="ALL" seriesList={allSeires} />
 
         <footer className="bg-background fixed right-0 bottom-0 m-2 flex flex-col items-center rounded-sm p-3">
           <h4 className="text-sm text-neutral-600">BETA</h4>

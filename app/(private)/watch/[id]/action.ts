@@ -1,6 +1,7 @@
 "use server";
 
 import { getUserSession } from "@/app/lib/server/session";
+import { revalidateTag } from "next/cache";
 
 export interface VideoContent {
   id: number;
@@ -95,6 +96,7 @@ export async function updateWatchRecord({
   if (!session.user) {
     return;
   }
+
   await fetch(
     `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/user/watch-record`,
     {
@@ -111,4 +113,5 @@ export async function updateWatchRecord({
       }),
     },
   );
+  revalidateTag("watch_progress");
 }

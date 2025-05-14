@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import ContentTitle from "./ContentTitle";
 
 interface Content {
   id: number;
@@ -16,34 +17,40 @@ interface Content {
 export default function ContentsList({
   contents,
   title,
+  subtitle,
 }: {
   contents: Content[];
   title: string;
+  subtitle: string;
 }) {
   return (
     <div className="w-full">
-      <div>
-        <h4 className="text-xs text-neutral-600">Contents</h4>
-        <h3 className="text-xl font-semibold">{title}</h3>
-      </div>
-      <div className="mt-3 grid grid-cols-1 gap-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
+      <ContentTitle title={title} subtitle={subtitle} />
+      <div className="mt-2 grid grid-cols-2 gap-1 sm:mt-3 sm:grid-cols-3 xl:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
         {contents?.map((content) => (
           <Link
             href={`/watch/${content.id}`}
             key={content.id}
-            className="group relative cursor-pointer"
+            className="group relative cursor-pointer py-1"
           >
-            <Image
-              src={content.backdrop_path}
-              width={320}
-              height={240}
-              alt={content.title}
-              className="w-full overflow-hidden rounded-sm"
-            />
-            <h5 className="absolute bottom-2/12 rounded-tr-3xl rounded-br-2xl bg-gradient-to-r from-black via-black py-2 pr-12 pl-2 text-sm opacity-0 transition-opacity ease-in-out group-hover:opacity-100">
-              {content.title}
-            </h5>
-            <div className="relative mt-2 overflow-hidden px-16">
+            <div className="relative overflow-hidden rounded-sm">
+              <Image
+                src={content.backdrop_path}
+                width={320}
+                height={240}
+                alt={content.title}
+                className="w-full overflow-hidden transition-all group-hover:scale-110"
+              />
+              <div className="absolute top-0 h-full w-full bg-gradient-to-b from-black/50 via-transparent to-transparent"></div>
+              <div className="absolute bottom-0 flex h-full w-full items-end bg-gradient-to-t from-black/50 via-transparent to-transparent">
+                <h5 className="line-clamp-1 p-2 text-sm">
+                  {content.title.length > 18
+                    ? content.title.slice(0, 18) + "..."
+                    : content.title}
+                </h5>
+              </div>
+            </div>
+            <div className="relative mx-auto mt-2 w-3/4 overflow-hidden">
               <div className="h-1 rounded-xs bg-neutral-700"></div>
               <div
                 className="absolute top-0 z-30 h-1 rounded-xs bg-red-600"
