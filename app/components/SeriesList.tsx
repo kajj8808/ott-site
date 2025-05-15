@@ -36,7 +36,7 @@ export default function SeriesList({
             </div>
             <div className="absolute top-0 left-0 z-30 h-full w-full">
               <div className="to-background/50 h-full bg-gradient-to-b from-transparent via-transparent"></div>
-              <div className="to-background/50 h-full bg-gradient-to-t from-transparent via-transparent"></div>
+              <div className="to-background/50 absolute top-0 left-0 h-full w-full bg-gradient-to-t from-transparent via-transparent"></div>
             </div>
           </Link>
         ))}
