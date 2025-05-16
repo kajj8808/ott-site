@@ -16,12 +16,37 @@ export interface VideoContent {
   created_at: string;
   updated_at: string;
 
-  episode: Episode | null;
-  movie: Movie | null;
+  episode?: { episode_number: number; name: string };
+  season?: { id: number; name: string };
 
-  season: Season | null;
-  series: Series | null;
-  next_episode: Episode | null;
+  series?: {
+    id: number;
+    title: string;
+    status: string;
+    season?: {
+      id: number;
+      name: string;
+      season_number: number;
+      updated_at: string;
+      episodes?: {
+        id: true;
+        name: string;
+        overview: string;
+        runtime: number;
+        update_at: true;
+        still_path: string;
+        user_watch_progress?: {
+          total_duration: number;
+          current_time: number;
+        }[];
+      }[];
+    }[];
+  };
+  user_progress?: {
+    current_time: number;
+    total_duration: number;
+  };
+  next_episode?: Episode | null;
 }
 
 export interface Episode {
@@ -70,10 +95,19 @@ interface VideoResponse {
   result: VideoContent;
 }
 
-export async function getVideoContentDetail(contentId: string) {
+export async function getVideoContentDetail(
+  contentId: string,
+  userToken: string,
+) {
   const json = (await (
     await fetch(
       `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${contentId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
     )
   ).json()) as VideoResponse;
 

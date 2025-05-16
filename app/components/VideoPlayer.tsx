@@ -2,7 +2,7 @@
 
 import {
   updateWatchRecord,
-  type Episode,
+  VideoContent,
 } from "../(private)/watch/[id]/action";
 
 import Link from "next/link";
@@ -12,19 +12,12 @@ import { cls, getSubtitleUrl, getVideoUrl } from "../utils/libs";
 
 interface VideoPlayerProps {
   goBackLink: string;
-  nextEpisode: Episode | null;
-  title: string;
-
-  watchId: string;
-  subtitleId: string | null;
+  videoContent: VideoContent;
 }
 
 export default function VideoPlayer({
   goBackLink,
-  nextEpisode,
-  title,
-  watchId,
-  subtitleId,
+  videoContent,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isHover, setIsHover] = useState(false);
@@ -41,7 +34,7 @@ export default function VideoPlayer({
     const video = videoRef.current;
     if (video && !video.paused) {
       updateWatchRecord({
-        watchId: watchId,
+        watchId: videoContent.watch_id,
         duration: video.duration,
         currentTime: video.currentTime,
       });
@@ -52,6 +45,9 @@ export default function VideoPlayer({
     const video = videoRef.current;
 
     if (video) {
+      if (videoContent.user_progress?.current_time) {
+        video.currentTime = videoContent.user_progress.current_time;
+      }
       video.volume = 0.25;
       video.play();
 
@@ -101,8 +97,12 @@ export default function VideoPlayer({
             className="aspect-video"
             controls
           >
-            <source src={getVideoUrl(watchId)} type="video/mp4" />
-            <track default srcLang="한국어" src={getSubtitleUrl(subtitleId)} />
+            <source src={getVideoUrl(videoContent.watch_id)} type="video/mp4" />
+            <track
+              default
+              srcLang="한국어"
+              src={getSubtitleUrl(videoContent.subtitle_id)}
+            />
           </video>
         </div>
       </div>
@@ -128,11 +128,15 @@ export default function VideoPlayer({
           <div className="absolute h-1 w-1/3 rounded-r-md bg-white"></div> */}
         </div>
         <div>
-          <span>{title}</span>
+          <span>
+            {videoContent.season
+              ? `${videoContent.season?.name} ${videoContent.episode?.episode_number}화 ${videoContent.episode?.name}`
+              : "movie!!!!"}
+          </span>
         </div>
-        {nextEpisode ? (
+        {videoContent.next_episode ? (
           <Link
-            href={`/watch/${nextEpisode.video_content_id}`}
+            href={`/watch/${videoContent.next_episode.video_content_id}`}
             className="bg-background absolute top-7 right-8 z-40 cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
             onClick={userWatchProgress}
           >
