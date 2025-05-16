@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const getCachedVideoContent = nextCache(
   async (id, userToken) => await getVideoContentDetail(id, userToken),
   ["video_detail"],
-  { revalidate: 3600, tags: ["video", "watch_progress"] },
+  { revalidate: 3600, tags: ["video"] },
 ); // 3600 -> 1hour
 
 export default async function Page({

@@ -11,7 +11,7 @@ import { getUserSession } from "@/app/lib/server/session";
 const getCachedSeriesDetail = nextCache(
   async (id, userToken) => await getSeriesDetail(id, userToken),
   ["series_detail"],
-  { revalidate: 520, tags: ["series"] },
+  { revalidate: 520, tags: ["series", "watch_progress"] },
 ); // 3600 -> 1hour
 
 export default async function Page({
