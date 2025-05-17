@@ -23,24 +23,7 @@ export interface VideoContent {
     id: number;
     title: string;
     status: string;
-    season?: {
-      id: number;
-      name: string;
-      season_number: number;
-      updated_at: string;
-      episodes?: {
-        id: true;
-        name: string;
-        overview: string;
-        runtime: number;
-        update_at: true;
-        still_path: string;
-        user_watch_progress?: {
-          total_duration: number;
-          current_time: number;
-        }[];
-      }[];
-    }[];
+    season?: VideoContentSeason[];
   };
   user_progress?: {
     current_time: number;
@@ -79,10 +62,27 @@ export interface Movie {
   updated_at: string;
 }
 
-export interface Season {
+export interface VideoContentSeason {
   id: number;
-  series_id: number;
   name: string;
+  season_number: number;
+  updated_at: string;
+  episodes?: VideoContentEpisode[];
+}
+
+export interface VideoContentEpisode {
+  id: number;
+  name: string;
+  overview: string;
+  runtime: number;
+  update_at: string;
+  still_path: string;
+  episode_number: number;
+  video_content_id: number;
+  user_watch_progress?: {
+    total_duration: number;
+    current_time: number;
+  }[];
 }
 
 export interface Series {
