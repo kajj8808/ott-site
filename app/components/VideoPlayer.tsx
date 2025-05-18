@@ -52,7 +52,7 @@ export default function VideoPlayer({
         video.currentTime = videoContent.user_progress.current_time;
       }
       video.volume = 0.25;
-      // video.play();
+      video.play();
 
       // init
       video.addEventListener("loadedmetadata", () => {

@@ -18,6 +18,7 @@ export interface Episode {
 }
 export interface Season {
   name: string;
+  season_number: number;
   episodes: Episode[];
   source_type: string;
   updated_at: string;
@@ -30,6 +31,9 @@ interface SeriesResponse {
     backdrop_path: string;
     updated_at: string;
     season: Season[];
+  };
+  lastWatchedProgress?: {
+    video_content_id: number;
   };
 }
 export async function getSeriesDetail(seriesId: string, userToken: string) {
@@ -50,6 +54,9 @@ export async function getSeriesDetail(seriesId: string, userToken: string) {
   ).json()) as SeriesResponse;
 
   if (json.ok) {
-    return json.series;
+    return {
+      series: json.series,
+      lastWatchedProgress: json.lastWatchedProgress,
+    };
   }
 }

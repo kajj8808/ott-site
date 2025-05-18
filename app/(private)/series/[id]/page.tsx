@@ -23,11 +23,13 @@ export default async function Page({
   const userSession = await getUserSession();
   const userToken = userSession.user?.token;
 
-  const seires = await getCachedSeriesDetail(id, userToken);
+  const cachedSeries = await getCachedSeriesDetail(id, userToken);
 
-  if (!seires) {
+  if (!cachedSeries) {
     return notFound();
   }
+
+  const { series, lastWatchedProgress } = cachedSeries;
 
   return (
     <div>
@@ -35,19 +37,22 @@ export default async function Page({
       <div className="mt-20 flex justify-center">
         <div className="w-full max-w-4xl">
           <div className="relative aspect-video">
-            <Image src={seires.backdrop_path} fill alt={seires.title} />
+            <Image src={series.backdrop_path} fill alt={series.title} />
             <div className="to-background absolute top-0 left-0 h-full w-full bg-gradient-to-b from-transparent via-transparent"></div>
             <div className="absolute bottom-3">
               <h3 className="pl-3 text-2xl font-semibold sm:text-3xl">
-                {seires.title}
+                {series.title}
               </h3>
             </div>
           </div>
           <div className="flex flex-col gap-3 px-3 pb-5">
-            <span className="line-clamp-2 text-sm">{seires.overview}</span>
-            <p className="text-sm">{daysAgo(seires.updated_at)} 업데이트</p>
+            <span className="line-clamp-2 text-sm">{series.overview}</span>
+            <p className="text-sm">{daysAgo(series.updated_at)} 업데이트</p>
           </div>
-          <SeasonEpisodeList seasons={seires.season} />
+          <SeasonEpisodeList
+            seasons={series.season}
+            lastWatchedProgress={lastWatchedProgress}
+          />
         </div>
       </div>
     </div>

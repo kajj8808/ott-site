@@ -5,27 +5,43 @@ import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Episode, Season } from "../(private)/series/[id]/action";
 
-export default function SeasonEpisodeList({ seasons }: { seasons: Season[] }) {
+export default function SeasonEpisodeList({
+  seasons,
+  lastWatchedProgress,
+}: {
+  seasons: Season[];
+  lastWatchedProgress?: { video_content_id: number };
+}) {
   const [season, setSeason] = useState<Season | undefined>(undefined);
   const [sortedEpisodes, setSortedEpisodes] = useState<Episode[]>([]);
 
   useEffect(() => {
     if (seasons.length > 0) {
       const sortedSeasons = seasons.sort((a, b) => {
-        const aDate = new Date(a.updated_at);
-        const bDate = new Date(b.updated_at);
+        const aDate = new Date(a.season_number);
+        const bDate = new Date(b.season_number);
         if (aDate > bDate) {
-          return -1;
+          return 1;
         }
         if (aDate < bDate) {
-          return 1;
+          return -1;
         }
         return 0;
       });
 
-      setSeason(sortedSeasons[0]);
+      if (lastWatchedProgress) {
+        const lastWatchedSeason = sortedSeasons.find((season) => {
+          return season.episodes.find(
+            (episode) =>
+              episode.video_content_id === lastWatchedProgress.video_content_id,
+          );
+        });
+        setSeason(lastWatchedSeason);
+      } else {
+        setSeason(sortedSeasons[0]);
+      }
     }
-  }, [seasons]);
+  }, [seasons, lastWatchedProgress]);
 
   useEffect(() => {
     if (season?.episodes) {
