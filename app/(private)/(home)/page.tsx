@@ -1,16 +1,16 @@
 import {
   getAllSeries,
+  getMovies,
   getNowPlayingSeries,
-  getSeriesIncludingDb,
   getUserWatingProgress,
 } from "./action";
 
-import SeriesList from "../../components/SeriesList";
 import { notFound } from "next/navigation";
 
 import { unstable_cache as nextCache } from "next/cache";
 import Header from "@/app/components/Header";
 import { authWithUserSession } from "@/app/lib/server/auth";
+import WatchingList from "@/app/components/WatchingList";
 import ContentsList from "@/app/components/ContentList";
 
 const getCachedUserWatchProgress = nextCache(
@@ -22,23 +22,23 @@ const getCachedUserWatchProgress = nextCache(
   { revalidate: 3600, tags: ["home", "watch_progress"] },
 );
 
-const getCachedSeries = nextCache(
+const getCachedContents = nextCache(
   async () => {
     const nowPlayingSeries = await getNowPlayingSeries();
-    const dbSeries = await getSeriesIncludingDb();
     const allSeires = await getAllSeries();
-    return { nowPlayingSeries, dbSeries, allSeires };
+    const allMovies = await getMovies();
+    return { nowPlayingSeries, allSeires, allMovies };
   },
   ["series"],
-  { revalidate: 520, tags: ["home", "series"] },
+  { revalidate: 520, tags: ["home", "contents"] },
 ); // 3600 -> 1hour
 
 export default async function Home() {
-  const { dbSeries, nowPlayingSeries, allSeires } = await getCachedSeries();
+  const { nowPlayingSeries, allSeires, allMovies } = await getCachedContents();
   const userSession = await authWithUserSession();
   const user = userSession.user;
-
-  if (!nowPlayingSeries || !dbSeries || !allSeires || !user) {
+  getMovies();
+  if (!nowPlayingSeries || !allSeires || !allMovies || !user) {
     return notFound();
   }
   const watchingContents = await getCachedUserWatchProgress(user.token);
@@ -48,20 +48,33 @@ export default async function Home() {
       <Header />
       <div className="mt-16 flex flex-col items-center gap-5 px-8 pb-5 sm:mt-20 sm:items-start">
         {watchingContents[0] ? (
-          <ContentsList
+          <WatchingList
             title={`Continue Wathing for ${user.email}`}
             subtitle="Contents"
             contents={watchingContents}
           />
         ) : null}
 
-        <SeriesList
+        <ContentsList
           subtitle="Series"
           title="Now Playing"
-          seriesList={nowPlayingSeries}
+          contents={nowPlayingSeries}
+          contentType="EPISODE"
         />
-        <SeriesList subtitle="Series" title="BD" seriesList={dbSeries} />
-        <SeriesList subtitle="Series" title="ALL" seriesList={allSeires} />
+
+        <ContentsList
+          subtitle="Movies"
+          title="ALL"
+          contents={allMovies}
+          contentType="MOVIE"
+        />
+
+        <ContentsList
+          subtitle="Series"
+          title="ALL"
+          contents={allSeires}
+          contentType="EPISODE"
+        />
 
         <footer className="bg-background fixed right-0 bottom-0 m-2 flex flex-col items-center rounded-sm p-3">
           <h4 className="text-sm text-neutral-600">BETA</h4>

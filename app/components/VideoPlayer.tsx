@@ -46,7 +46,7 @@ export default function VideoPlayer({
 
   useEffect(() => {
     const video = videoRef.current;
-
+    console.log(videoContent);
     if (video) {
       if (videoContent.user_progress?.current_time) {
         video.currentTime = videoContent.user_progress.current_time;
@@ -136,15 +136,18 @@ export default function VideoPlayer({
           <span>
             {videoContent.season
               ? `${videoContent.season?.name} ${videoContent.episode?.episode_number}화 ${videoContent.episode?.name}`
-              : "movie!!!!"}
+              : `${videoContent.movie?.title}`}
           </span>
         </div>
-        <button
-          onClick={() => setShowContentNavigator((prev) => !prev)}
-          className="bg-background absolute top-7 left-8 z-40 cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
-        >
-          🔮
-        </button>
+        {videoContent.movie === null && (
+          <button
+            onClick={() => setShowContentNavigator((prev) => !prev)}
+            className="bg-background absolute top-7 left-8 z-40 cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
+          >
+            🔮
+          </button>
+        )}
+
         {videoContent.next_episode ? (
           <Link
             href={`/watch/${videoContent.next_episode.video_content_id}`}

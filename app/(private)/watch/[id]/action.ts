@@ -30,6 +30,11 @@ export interface VideoContent {
     total_duration: number;
   };
   next_episode?: Episode | null;
+
+  movie?: {
+    title: string;
+    id: boolean;
+  };
 }
 
 export interface Episode {

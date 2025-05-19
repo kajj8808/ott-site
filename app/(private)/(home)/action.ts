@@ -95,3 +95,21 @@ export async function getUserWatingProgress(userToken: string | undefined) {
 
   return json.contents;
 }
+
+interface MovieResponse {
+  ok: boolean;
+  movies: {
+    id: number;
+    title: string;
+    poster_path: string | null;
+    backdrop_path: string | null;
+  }[];
+}
+export async function getMovies() {
+  const json = (await (
+    await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/movie/all`)
+  ).json()) as MovieResponse;
+  if (json.ok) {
+    return json.movies;
+  }
+}

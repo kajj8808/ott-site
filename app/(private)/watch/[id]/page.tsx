@@ -36,7 +36,7 @@ export default async function Page({
       {/* // FIXME: 이부분 seires => 반응형으로 movie 등.. */}
       <VideoPlayer
         goBackLink={
-          videoContent.series?.id ? `/series/${videoContent.series.id}` : "/"
+          videoContent.series?.id ? `/series/${videoContent.series.id}` : `/`
         }
         videoContent={videoContent}
       />
