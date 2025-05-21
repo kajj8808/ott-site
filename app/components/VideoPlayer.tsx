@@ -7,7 +7,11 @@ import {
 
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowLeftIcon,
+  SparklesIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
 import { cls, getSubtitleUrl, getVideoUrl } from "../utils/libs";
 import ContentNavigator from "./ContentNavigator";
 
@@ -109,14 +113,19 @@ export default function VideoPlayer({
           </video>
         </div>
       </div>
-      {showContentNavigator && <ContentNavigator videoContent={videoContent} />}
 
       <div
         className={cls(
           "fixed bottom-0 flex h-24 w-full items-center justify-center border-white/20 transition-opacity group-hover:opacity-100",
-          isHover ? "opacity-100" : "opacity-0",
+          isHover ? "opacity-100" : "opacity-100",
         )}
       >
+        {/* TODO: 여기 부분 이후 설정.  */}
+        <div className="absolute top-7 left-8 flex hidden flex-2">
+          <UserGroupIcon className="size-7" />
+          <SparklesIcon className="size-7" />
+        </div>
+
         <div className="absolute -top-0 w-full border-t border-neutral-700">
           <span className="hidden">
             {currentTime} / {duration}
@@ -139,24 +148,32 @@ export default function VideoPlayer({
               : `${videoContent.movie?.title}`}
           </span>
         </div>
-        {videoContent.movie === null && (
-          <button
-            onClick={() => setShowContentNavigator((prev) => !prev)}
-            className="bg-background absolute top-7 left-8 z-40 cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
-          >
-            🔮
-          </button>
-        )}
 
-        {videoContent.next_episode ? (
-          <Link
-            href={`/watch/${videoContent.next_episode.video_content_id}`}
-            className="bg-background absolute top-7 right-8 z-40 cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
-            onClick={userWatchProgress}
-          >
-            다음화
-          </Link>
-        ) : null}
+        <div className="absolute top-7 right-8 z-40 flex gap-3">
+          {showContentNavigator && (
+            <div className="absolute -top-[300px] -left-[230px] z-40 max-h-72 w-96 overflow-scroll rounded-md border-1">
+              <ContentNavigator videoContent={videoContent} />
+            </div>
+          )}
+          {videoContent.movie === null && (
+            <button
+              onClick={() => setShowContentNavigator((prev) => !prev)}
+              className="bg-background cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
+            >
+              🔮
+            </button>
+          )}
+
+          {videoContent.next_episode ? (
+            <Link
+              href={`/watch/${videoContent.next_episode.video_content_id}`}
+              className="bg-background cursor-pointer rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-white/20"
+              onClick={userWatchProgress}
+            >
+              다음화
+            </Link>
+          ) : null}
+        </div>
       </div>
     </div>
   );

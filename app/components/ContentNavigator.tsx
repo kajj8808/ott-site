@@ -25,7 +25,7 @@ export default function ContentNavigator({
   }, [videoContent]);
 
   return (
-    <div className="bg-background absolute top-0 right-0 rounded-md border-1 p-2">
+    <div className="bg-background p-2">
       <h5>{playingSeason?.name}</h5>
       <ul className="flex flex-col">
         {playingSeason?.episodes?.map((episode) => (
