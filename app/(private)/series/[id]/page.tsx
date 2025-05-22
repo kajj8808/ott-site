@@ -50,7 +50,9 @@ export default async function Page({
             <p className="text-sm">{daysAgo(series.updated_at)} 업데이트</p>
           </div>
           <SeasonEpisodeList
-            seasons={series.season}
+            seasons={series.season.filter(
+              (season) => season.episodes.length > 1,
+            )}
             lastWatchedProgress={lastWatchedProgress}
           />
         </div>

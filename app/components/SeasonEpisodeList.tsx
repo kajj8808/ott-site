@@ -108,7 +108,7 @@ export default function SeasonEpisodeList({
               <div className="flex justify-between text-sm font-semibold sm:text-base">
                 <h5>
                   {episode.episode_number}.
-                  {episode.name.length > 18
+                  {episode.name?.length > 18
                     ? `${episode.name.slice(0, 18)}...`
                     : episode.name}
                 </h5>
