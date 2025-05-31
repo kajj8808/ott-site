@@ -1,4 +1,9 @@
+import { Metadata } from "next";
 import { authWithUserSession } from "../lib/server/auth";
+
+export const metadata: Metadata = {
+  title: "Home",
+};
 
 export default async function Layout({
   children,

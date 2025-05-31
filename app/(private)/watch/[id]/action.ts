@@ -154,3 +154,5 @@ export async function updateWatchRecord({
   );
   revalidateTag("watch_progress");
 }
+
+export async function getWatchMetadata(watchId: string) {}
