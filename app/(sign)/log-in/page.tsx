@@ -4,6 +4,11 @@ import { getUserSession } from "@/app/lib/server/session";
 import { redirect } from "next/navigation";
 
 import SignButton from "@/app/components/SignButton";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login",
+};
 
 export default async function Page() {
   const session = await getUserSession();
