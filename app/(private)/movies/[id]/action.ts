@@ -1,5 +1,7 @@
 "use server";
 
+import { Metadata } from "next";
+
 interface MoiveResponse {
   ok: boolean;
   result: {
@@ -28,4 +30,35 @@ export async function getMovieDetial(id: string, userToken: string) {
   }
 
   return json.result;
+}
+
+interface OpenGraphResult {
+  ok: boolean;
+  result: {
+    title: string;
+    backdrop_path: string;
+  };
+}
+
+export async function getMetadata(movieId: string): Promise<Metadata> {
+  const json = (await (
+    await fetch(
+      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/movie/${movieId}/open-graph`,
+    )
+  ).json()) as OpenGraphResult;
+
+  if (json.ok) {
+    return {
+      title: json.result.title,
+      openGraph: {
+        title: `${json.result.title}`,
+        images: json.result.backdrop_path,
+      }, // 페이지 설명
+    };
+  } else {
+    return {
+      title: "Series Error",
+      openGraph: { title: "Bad Request" },
+    };
+  }
 }

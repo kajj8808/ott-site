@@ -1,12 +1,24 @@
 import { daysAgo } from "@/app/utils/libs";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getSeriesDetail } from "./action";
+import { getMetadata, getSeriesDetail } from "./action";
 import SeasonEpisodeList from "@/app/components/SeasonEpisodeList";
 
 import { unstable_cache as nextCache } from "next/cache";
 import Header from "@/app/components/Header";
 import { getUserSession } from "@/app/lib/server/session";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const metadata = await getMetadata(id);
+
+  return metadata;
+}
 
 const getCachedSeriesDetail = nextCache(
   async (id, userToken) => await getSeriesDetail(id, userToken),

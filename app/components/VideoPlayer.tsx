@@ -117,11 +117,11 @@ export default function VideoPlayer({
       <div
         className={cls(
           "fixed bottom-0 flex h-24 w-full items-center justify-center border-white/20 transition-opacity group-hover:opacity-100",
-          isHover ? "opacity-100" : "opacity-100",
+          isHover ? "opacity-100" : "opacity-0",
         )}
       >
         {/* TODO: 여기 부분 이후 설정.  */}
-        <div className="absolute top-7 left-8 flex hidden flex-2">
+        <div className="absolute top-7 left-8 hidden flex-2">
           <UserGroupIcon className="size-7" />
           <SparklesIcon className="size-7" />
         </div>

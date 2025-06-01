@@ -1,11 +1,22 @@
 import Header from "@/app/components/Header";
 import { getUserSession } from "@/app/lib/server/session";
 import { daysAgo } from "@/app/utils/libs";
-import { getMovieDetial } from "./action";
+import { getMetadata, getMovieDetial } from "./action";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PlayIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const metadata = await getMetadata(id);
+  return metadata;
+}
 
 export default async function Page({
   params,

@@ -1,6 +1,7 @@
 "use server";
 
 import { getUserSession } from "@/app/lib/server/session";
+import { Metadata } from "next";
 import { revalidateTag } from "next/cache";
 
 export interface VideoContent {
@@ -155,4 +156,57 @@ export async function updateWatchRecord({
   revalidateTag("watch_progress");
 }
 
-export async function getWatchMetadata(watchId: string) {}
+interface OpenGraphResult {
+  ok: boolean;
+  result: {
+    episode?: {
+      name: string;
+      still_path: string;
+      series: {
+        title: string;
+      };
+      season: {
+        name: string;
+      };
+    };
+    movie?: {
+      title: string;
+      backdrop_path: string;
+    };
+  };
+}
+
+export async function getMetadata(videoContentId: string) {
+  const json = (await (
+    await fetch(
+      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${videoContentId}/open-graph`,
+    )
+  ).json()) as OpenGraphResult;
+
+  let metadata: Metadata = {
+    title: "VideoContent Error",
+  };
+
+  if (json.ok) {
+    if (json.result.movie) {
+      metadata = {
+        title: json.result.movie.title,
+        openGraph: {
+          title: json.result.movie.title,
+          images: json.result.movie.backdrop_path,
+        },
+      };
+    }
+    if (json.result.episode) {
+      metadata = {
+        title: `${json.result.episode.name} - ${json.result.episode.series.title} ${json.result.episode.season.name}`,
+        openGraph: {
+          title: `${json.result.episode.name} - ${json.result.episode.series.title} ${json.result.episode.season.name}`,
+          images: json.result.episode.still_path,
+        },
+      };
+    }
+  }
+
+  return metadata;
+}
