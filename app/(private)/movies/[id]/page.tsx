@@ -6,7 +6,6 @@ import Image from "next/image";
 import { PlayIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { isBotRequest } from "@/app/lib/server/isBot";
 

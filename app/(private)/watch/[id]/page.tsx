@@ -5,7 +5,6 @@ import { Metadata } from "next";
 import { unstable_cache as nextCache } from "next/cache";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { isBotRequest } from "@/app/lib/server/isBot";
 
 export async function generateMetadata({

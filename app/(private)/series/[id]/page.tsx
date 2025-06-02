@@ -7,7 +7,6 @@ import SeasonEpisodeList from "@/app/components/SeasonEpisodeList";
 import { unstable_cache as nextCache } from "next/cache";
 import Header from "@/app/components/Header";
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { isBotRequest } from "@/app/lib/server/isBot";
 
