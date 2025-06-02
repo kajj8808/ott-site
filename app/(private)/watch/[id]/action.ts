@@ -192,7 +192,7 @@ export async function getMetadata(videoContentId: string) {
     if (json.result.movie) {
       metadata = {
         title: json.result.movie.title,
-        description: json.result.movie.title,
+        description: `극장판 ${json.result.movie.title}`,
         openGraph: {
           title: json.result.movie.title,
           images: json.result.movie.backdrop_path,
@@ -202,8 +202,10 @@ export async function getMetadata(videoContentId: string) {
     if (json.result.episode) {
       metadata = {
         title: `${json.result.episode.name} - ${json.result.episode.series.title} ${json.result.episode.season.name}`,
+        description: "",
         openGraph: {
           title: `${json.result.episode.name} - ${json.result.episode.series.title} ${json.result.episode.season.name}`,
+          description: "",
           images: json.result.episode.still_path,
         },
       };
