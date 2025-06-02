@@ -10,7 +10,5 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await authWithUserSession();
-
   return <main>{children}</main>;
 }

@@ -1,5 +1,4 @@
 import Header from "@/app/components/Header";
-import { getUserSession } from "@/app/lib/server/session";
 import { daysAgo } from "@/app/utils/libs";
 import { getMetadata, getMovieDetial } from "./action";
 import { notFound } from "next/navigation";
@@ -8,6 +7,8 @@ import { PlayIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Metadata } from "next";
 import { headers } from "next/headers";
+import { authWithUserSession } from "@/app/lib/server/auth";
+import { isBotRequest } from "@/app/lib/server/isBot";
 
 export async function generateMetadata({
   params,
@@ -24,21 +25,13 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const userAgent = (await headers()).get("user-agent");
-  const isDiscordBot = userAgent?.includes(
-    "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
-  );
-
-  if (isDiscordBot) {
-    return (
-      <div>
-        <h3>Hello Discord Bot!</h3>
-      </div>
-    );
+  const isBot = await isBotRequest();
+  if (isBot) {
+    return;
   }
 
   const { id } = await params;
-  const userSession = await getUserSession();
+  const userSession = await authWithUserSession();
 
   if (!userSession.user) {
     return notFound();

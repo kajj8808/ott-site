@@ -13,6 +13,7 @@ import { authWithUserSession } from "@/app/lib/server/auth";
 import WatchingList from "@/app/components/WatchingList";
 import ContentsList from "@/app/components/ContentList";
 import { Metadata } from "next";
+import { isBotRequest } from "@/app/lib/server/isBot";
 
 export const metadata: Metadata = {
   title: "home",
@@ -40,9 +41,16 @@ const getCachedContents = nextCache(
 ); // 3600 -> 1hour
 
 export default async function Home() {
-  const { nowPlayingSeries, allSeires, allMovies } = await getCachedContents();
+  const isBot = await isBotRequest();
+  if (isBot) {
+    return;
+  }
+
   const userSession = await authWithUserSession();
   const user = userSession.user;
+
+  const { nowPlayingSeries, allSeires, allMovies } = await getCachedContents();
+
   getMovies();
   if (!nowPlayingSeries || !allSeires || !allMovies || !user) {
     return notFound();

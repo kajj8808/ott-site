@@ -6,9 +6,10 @@ import SeasonEpisodeList from "@/app/components/SeasonEpisodeList";
 
 import { unstable_cache as nextCache } from "next/cache";
 import Header from "@/app/components/Header";
-import { getUserSession } from "@/app/lib/server/session";
 import { Metadata } from "next";
 import { headers } from "next/headers";
+import { authWithUserSession } from "@/app/lib/server/auth";
+import { isBotRequest } from "@/app/lib/server/isBot";
 
 export async function generateMetadata({
   params,
@@ -32,26 +33,13 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const userAgent = (await headers()).get("user-agent");
-  const isDiscordBot = userAgent?.includes(
-    "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
-  );
-  console.log(userAgent);
-  console.log(
-    userAgent?.includes(
-      "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
-    ),
-  );
-  if (isDiscordBot) {
-    return (
-      <div>
-        <h3>Hello Discord Bot!</h3>
-      </div>
-    );
+  const isBot = await isBotRequest();
+  if (isBot) {
+    return;
   }
 
   const { id } = await params;
-  const userSession = await getUserSession();
+  const userSession = await authWithUserSession();
   const userToken = userSession.user?.token;
 
   const cachedSeries = await getCachedSeriesDetail(id, userToken);
