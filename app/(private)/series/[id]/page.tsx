@@ -32,12 +32,22 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userAgent = (await headers()).get("user-agent");
+  const isDiscordBot = userAgent?.includes(
+    "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
+  );
+
+  if (isDiscordBot) {
+    return (
+      <div>
+        <h3>Hello Discord Bot!</h3>
+      </div>
+    );
+  }
+
   const { id } = await params;
   const userSession = await getUserSession();
   const userToken = userSession.user?.token;
-
-  const userAgent = (await headers()).get("user-agent");
-  console.log(userAgent);
 
   const cachedSeries = await getCachedSeriesDetail(id, userToken);
 

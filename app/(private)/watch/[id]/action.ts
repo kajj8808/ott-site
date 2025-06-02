@@ -185,12 +185,14 @@ export async function getMetadata(videoContentId: string) {
 
   let metadata: Metadata = {
     title: "VideoContent Error",
+    description: "Bad Request",
   };
 
   if (json.ok) {
     if (json.result.movie) {
       metadata = {
         title: json.result.movie.title,
+        description: json.result.movie.title,
         openGraph: {
           title: json.result.movie.title,
           images: json.result.movie.backdrop_path,

@@ -12,6 +12,12 @@ import Header from "@/app/components/Header";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import WatchingList from "@/app/components/WatchingList";
 import ContentsList from "@/app/components/ContentList";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "home",
+  description: "streemo home page",
+};
 
 const getCachedUserWatchProgress = nextCache(
   async (userToken) => {

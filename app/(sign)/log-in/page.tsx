@@ -7,7 +7,8 @@ import SignButton from "@/app/components/SignButton";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Login",
+  title: "log-in",
+  description: "streemo log-in page",
 };
 
 export default async function Page() {
