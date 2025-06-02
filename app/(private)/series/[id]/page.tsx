@@ -8,6 +8,7 @@ import { unstable_cache as nextCache } from "next/cache";
 import Header from "@/app/components/Header";
 import { getUserSession } from "@/app/lib/server/session";
 import { Metadata } from "next";
+import { headers } from "next/headers";
 
 export async function generateMetadata({
   params,
@@ -34,6 +35,9 @@ export default async function Page({
   const { id } = await params;
   const userSession = await getUserSession();
   const userToken = userSession.user?.token;
+
+  const userAgent = (await headers()).get("user-agent");
+  console.log(userAgent);
 
   const cachedSeries = await getCachedSeriesDetail(id, userToken);
 
