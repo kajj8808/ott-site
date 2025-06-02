@@ -36,7 +36,12 @@ export default async function Page({
   const isDiscordBot = userAgent?.includes(
     "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
   );
-
+  console.log(userAgent);
+  console.log(
+    userAgent?.includes(
+      "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
+    ),
+  );
   if (isDiscordBot) {
     return (
       <div>
