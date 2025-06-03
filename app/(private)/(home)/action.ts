@@ -74,7 +74,6 @@ interface VideoContentResponse {
 export async function getUserWatingProgress(userToken: string | undefined) {
   if (!userToken) {
     redirect("/log-in");
-    return [];
   }
 
   const json = (await (

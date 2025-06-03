@@ -50,7 +50,7 @@ export async function getMetadata(movieId: string): Promise<Metadata> {
   if (json.ok) {
     return {
       title: json.result.title,
-      description: "",
+      description: json.result.title,
       openGraph: {
         title: `${json.result.title}`,
         images: json.result.backdrop_path,

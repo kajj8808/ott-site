@@ -83,7 +83,7 @@ export async function getMetadata(seriesId: string): Promise<Metadata> {
   if (json.ok) {
     return {
       title: json.result.title,
-      description: "",
+      description: json.result.title,
       openGraph: {
         title: `${json.result.title} - ${json.result._count.episodes}개의 에피소드`,
         description: "",
