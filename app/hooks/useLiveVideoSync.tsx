@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
-export default function useVideoSyncSocket() {
+export default function useLiveVideoSync() {
   const [isConnected, setIsConnected] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
@@ -28,7 +28,7 @@ export default function useVideoSyncSocket() {
   };
 
   useEffect(() => {
-    socketRef.current = io("ws://localhost:3003");
+    socketRef.current = io("wss://");
 
     socketRef.current.on("connect", () => {
       setIsConnected(true);
