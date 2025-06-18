@@ -28,7 +28,7 @@ export default function useLiveVideoSync() {
   };
 
   useEffect(() => {
-    socketRef.current = io("wss://");
+    socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL);
 
     socketRef.current.on("connect", () => {
       setIsConnected(true);
