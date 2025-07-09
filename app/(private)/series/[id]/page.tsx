@@ -69,7 +69,7 @@ export default async function Page({
           </div>
           <SeasonEpisodeList
             seasons={series.season.filter(
-              (season) => season.episodes.length > 1,
+              (season) => season.episodes.length > 0,
             )}
             lastWatchedProgress={lastWatchedProgress}
           />

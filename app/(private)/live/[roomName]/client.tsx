@@ -4,7 +4,13 @@ import useLiveVideoSync from "@/app/hooks/useLiveVideoSync";
 import { getVideoUrl } from "@/app/utils/libs";
 import { useEffect, useRef } from "react";
 
-export default function LiveClient({ roomName }: { roomName: string }) {
+export default function LiveClient({
+  roomName,
+  userName,
+}: {
+  roomName: string;
+  userName: string;
+}) {
   const {
     isConnected,
     joinRoom,
@@ -19,42 +25,25 @@ export default function LiveClient({ roomName }: { roomName: string }) {
 
   useEffect(() => {
     if (roomName) {
-      joinRoom(roomName);
+      // joinRoom(roomName, userName);
     }
   }, []);
 
   useEffect(() => {
     const video = videoRef.current;
-    console.log(isPlaying);
     if (video) {
-      if (isPlaying) {
-        video.play();
-      } else {
-        video.pause();
-      }
+      //video.addEventListener("")
     }
-  }, [isPlaying]);
+  }, []);
 
   return (
     <div>
-      <p>live {isConnected ? "🙌" : "😒"}</p>
-      <div className="flex gap-2">
-        <button onClick={playVideo} className="cursor-pointer">
-          play
-        </button>
-        <button onClick={pauseVideo} className="cursor-pointer">
-          pause
-        </button>
-      </div>
-      <video
-        ref={videoRef}
-        crossOrigin="anonymous"
-        className="aspect-video"
-        controls
-        autoPlay
-        muted
-      >
-        <source src={getVideoUrl(1747320332680 + "")} type="video/mp4" />
+      <p>
+        live {isConnected ? "🙌 server connect!" : "😒 server is not ready?"}
+      </p>
+
+      <video ref={videoRef} controls crossOrigin="anonymous" autoPlay>
+        <source src="https://kajj8808.com:8443/media/video/1752049479794" />
       </video>
     </div>
   );

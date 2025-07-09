@@ -7,23 +7,29 @@ export default function useLiveVideoSync() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
 
+  // FIXME: 임시 username 이후 수정
+  const [username, setUsername] = useState<null | string>(null);
+
   const [error, setError] = useState<string | null>(null);
 
   const socketRef = useRef<Socket>(null);
 
-  const joinRoom = (roomName: string) => {
-    socketRef.current?.emit("joinRoom", roomName);
+  const joinRoom = (roomName: string, userName: string) => {
+    setUsername("123");
+    socketRef.current?.emit("joinRoom", roomName, userName);
   };
 
-  const timeUpdate = (time: number) => {
-    socketRef.current?.emit("timeUpdate", time);
+  const timeUpdate = (time: number, username: string) => {
+    socketRef.current?.emit("timeUpdate", time, username);
   };
 
   const pauseVideo = () => {
+    setIsPlaying(false);
     socketRef.current?.emit("pause");
   };
 
   const playVideo = () => {
+    setIsPlaying(true);
     socketRef.current?.emit("play");
   };
 
@@ -35,9 +41,13 @@ export default function useLiveVideoSync() {
       console.log("server connect!");
     });
 
-    socketRef.current.on("timeUpdate", (time) => {
-      console.log("server emit video time: ", time);
-      setCurrentTime(time);
+    socketRef.current.on("welcome", () => {});
+
+    socketRef.current.on("timeUpdate", (time, sendUser) => {
+      console.log(sendUser + " " + username + " time update");
+      if (sendUser !== username) {
+        setCurrentTime(time);
+      }
     });
 
     socketRef.current.on("pause", () => {
@@ -69,6 +79,7 @@ export default function useLiveVideoSync() {
     isConnected,
     currentTime,
     error,
+    username,
     joinRoom,
     timeUpdate,
     pauseVideo,
