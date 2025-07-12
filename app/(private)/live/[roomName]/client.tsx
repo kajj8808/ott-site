@@ -2,7 +2,7 @@
 
 import useLiveVideoSync from "@/app/hooks/useLiveVideoSync";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function LiveClient({
   roomName,
