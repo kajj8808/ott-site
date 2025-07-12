@@ -11,17 +11,9 @@ export default function LiveClient({
   roomName: string;
   userName: string;
 }) {
-  const {
-    isConnected,
-    joinRoom,
-    isPlaying,
-    currentTime,
-    timeUpdate,
-    playVideo,
-    pauseVideo,
-  } = useLiveVideoSync();
+  const { isConnected, joinRoom } = useLiveVideoSync();
 
-  const [isSeekingFromRemote, setIsSeekingFromRemote] = useState(false);
+  // const [isSeekingFromRemote, setIsSeekingFromRemote] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
