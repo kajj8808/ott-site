@@ -91,7 +91,7 @@ export default async function Home() {
         />
 
         <footer className="bg-background fixed right-0 bottom-0 m-2 flex flex-col items-center rounded-sm p-3">
-          <h4 className="text-sm text-neutral-600">BETA</h4>
+          <h4 className="text-sm text-neutral-600">0.1.6 BETA</h4>
         </footer>
       </div>
     </div>
