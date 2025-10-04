@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Episode {
+  id                   Int                 @id @default(autoincrement())
+  season_id            Int
+  series_id            Int
+  video_content_id     Int                 @unique
+  episode_number       Int
+  name                 String?
+  overview             String?
+  still_path           String?
+  runtime              Int?
+  is_korean_translated Boolean             @default(false)
+  created_at           DateTime            @default(now())
+  updated_at           DateTime
+  Season               Season              @relation(fields: [season_id], references: [id])
+  Series               Series              @relation(fields: [series_id], references: [id])
+  VideoContent         VideoContent        @relation(fields: [video_content_id], references: [id])
+  UserWatchProgress    UserWatchProgress[]
+}
+
+model Genres {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  seriesId Int?
+  Series   Series? @relation(fields: [seriesId], references: [id])
+}
+
+model Magnet {
+  id           Int            @id @default(autoincrement())
+  chiper_link  String         @unique
+  created_at   DateTime       @default(now())
+  updated_at   DateTime
+  VideoContent VideoContent[]
+}
+
+model Membership {
+  id         Int            @id @default(autoincrement())
+  type       MembershipType @default(PREMIUM)
+  started_at DateTime       @default(now())
+  expires_at DateTime?
+  user_id    Int            @unique
+  User       User           @relation(fields: [user_id], references: [id])
+}
+
+model Movie {
+  id                Int                 @id @default(autoincrement())
+  video_content_id  Int                 @unique
+  title             String
+  overview          String
+  poster_path       String?
+  backdrop_path     String?
+  runtime           Int?
+  release_date      DateTime?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  series_id         Int?
+  Series            Series?             @relation(fields: [series_id], references: [id])
+  VideoContent      VideoContent        @relation(fields: [video_content_id], references: [id])
+  UserWatchProgress UserWatchProgress[]
+}
+
+model Season {
+  id                 Int                 @id @default(autoincrement())
+  series_id          Int?
+  season_number      Int
+  name               String?
+  overview           String?
+  poster_path        String?
+  air_date           DateTime?
+  nyaa_query         String?
+  should_download    Boolean             @default(false)
+  tmdb_season_number Int
+  episode_offset     Int?
+  created_at         DateTime            @default(now())
+  updated_at         DateTime
+  source_type        SourceType          @default(TVA)
+  Episode            Episode[]
+  Series             Series?             @relation(fields: [series_id], references: [id])
+  UserWatchProgress  UserWatchProgress[]
+  VideoContent       VideoContent[]
+}
+
+model Series {
+  id                Int                 @id
+  title             String              @unique
+  overview          String
+  logo              String?
+  backdrop_path     String?
+  poster_path       String?
+  original          SeriesOriginal?
+  status            SeriesStatus
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  Episode           Episode[]
+  Genres            Genres[]
+  Movie             Movie[]
+  Season            Season[]
+  UserWatchProgress UserWatchProgress[]
+  VideoContent      VideoContent[]
+}
+
+model Token {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  user_id    Int?
+  created_at DateTime @default(now())
+  updated_at DateTime
+  User       User?    @relation(fields: [user_id], references: [id])
+}
+
+model User {
+  id                Int                 @id @default(autoincrement())
+  email             String?             @unique
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  avatar            String?
+  github_id         String?             @unique
+  password          String?
+  phone             String?             @unique
+  role              UserRole            @default(USER)
+  Membership        Membership?
+  Token             Token[]
+  UserWatchProgress UserWatchProgress[]
+}
+
+model UserWatchProgress {
+  id               Int             @id @default(autoincrement())
+  user_id          Int
+  video_content_id Int
+  status           WatcWatchStatus @default(WATCHING)
+  series_id        Int?
+  movie_id         Int?
+  current_time     Int             @default(0)
+  total_duration   Int?
+  created_at       DateTime        @default(now())
+  updated_at       DateTime
+  episode_id       Int?
+  season_id        Int?
+  Episode          Episode?        @relation(fields: [episode_id], references: [id])
+  Movie            Movie?          @relation(fields: [movie_id], references: [id])
+  Season           Season?         @relation(fields: [season_id], references: [id])
+  Series           Series?         @relation(fields: [series_id], references: [id])
+  User             User            @relation(fields: [user_id], references: [id])
+  VideoContent     VideoContent    @relation(fields: [video_content_id], references: [id])
+
+  @@unique([user_id, video_content_id])
+}
+
+model VideoContent {
+  id                Int                 @id @default(autoincrement())
+  watch_id          String
+  subtitle_id       String?
+  type              VideoContentType
+  opening_start     Int?
+  opening_end       Int?
+  ending_start      Int?
+  ending_end        Int?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  magnet_id         Int?
+  season_id         Int?
+  series_id         Int?
+  Episode           Episode?
+  Movie             Movie?
+  UserWatchProgress UserWatchProgress[]
+  Magnet            Magnet?             @relation(fields: [magnet_id], references: [id])
+  Season            Season?             @relation(fields: [season_id], references: [id])
+  Series            Series?             @relation(fields: [series_id], references: [id])
+}
+
+model WatchSession {
+  id               Int      @id @default(autoincrement())
+  video_content_id Int
+  current_time     Int?
+  backdrop_path    String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime
+}
+
+enum MembershipType {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+enum SeriesOriginal {
+  GAME_ORIGINAL
+  NOVEL_ORIGINAL
+  MANGA_ORIGINAL
+}
+
+enum SeriesStatus {
+  ONGOING
+  COMPLETED
+  UPCOMING
+  CANCELLED
+}
+
+enum SourceType {
+  TVA
+  BD
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum VideoContentType {
+  MOVIE
+  EPISODE
+  SPECIAL
+}
+
+enum WatcWatchStatus {
+  WATCHING
+  COMPLETED
+  DROPPED
+}
