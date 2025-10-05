@@ -1,5 +1,7 @@
 import Image from "next/image";
 import db from "../../../prisma/client";
+import { timeAgo } from "@/lib/utiles";
+
 async function getSeriesList() {
   const seriesList = await db.series.findMany({
     take: 9,
@@ -10,44 +12,70 @@ async function getSeriesList() {
   return seriesList;
 }
 
+async function getLatestEpisodes() {
+  const episodes = await db.episode.findMany({
+    take: 4,
+    orderBy: {
+      updated_at: "desc",
+    },
+    distinct: ["series_id"],
+    include: {
+      series: {
+        select: {
+          id: true,
+          title: true,
+          poster_path: true,
+          backdrop_path: true,
+        },
+      },
+      season: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  return episodes;
+}
+
 export default async function Home() {
   const seriesList = await getSeriesList();
-
+  const episodes = await getLatestEpisodes();
   return (
-    <section className="p-8">
+    <section className="p-8 mx-auto">
       <div>
         <h2 className="text-xs opacity-70">Series</h2>
         <h3 className="font-semibold text-xl">최근 업데이트 된 애니메이션</h3>
       </div>
-      <div className="grid grid-cols-2 gap-6 mt-2">
-        {seriesList.map((series) => (
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(310px,100%),1fr))] gap-2 mt-4 overflow-hidden">
+        {episodes.map((episode) => (
           <div
-            key={series.id}
-            className="rounded-md flex flex-col gap-1 relative group"
+            key={episode.id}
+            className="rounded-md flex flex-col gap-1 relative group cursor-pointer"
           >
             <div className="overflow-hidden rounded-md">
               <Image
                 width={320}
                 height={160}
-                src={series.poster_path!}
-                alt={`${series.title}-backdrop`}
+                src={episode.series?.backdrop_path!}
+                alt={`${episode.series?.title}-backdrop`}
+                className="w-full group-hover:scale-110 transition-transform"
               />
             </div>
-            <div className="absolute flex w-full h-full justify-center items-center group-hover:opacity-100 opacity-0 transition-all text-white p-5 bg-black/60">
-              {series.overview.slice(0, 120)}
-            </div>
-
-            <div className="absolute top-0 h-full w-full bg-gradient-to-b from-black/50 via-transparent to-transparent" />
-            <div className="absolute bottom-0 flex h-full w-full items-end bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-            <div className="absolute bottom-0 p-3 flex-col w-full h-full">
-              <span className="text-sm font-semibold">{series.title}</span>
-              <div className="flex justify-between py-1">
-                <span className="text-xs opacity-80">시즌2 2화</span>
+            <div className="text-shadow-current absolute bottom-0 p-2 w-full z-50">
+              <span className="text-sm font-semibold">
+                {episode.series?.title}
+              </span>
+              <div className="flex justify-between">
+                <span className="text-xs opacity-70">
+                  {episode.season?.name} {episode.episode_number}화
+                </span>
+                <span className="text-xs opacity-70">
+                  {timeAgo(episode.updated_at)} 업데이트
+                </span>
               </div>
             </div>
-            <span className="text-xs opacity-80 absolute bottom-0 p-3 right-0">
-              1일전
-            </span>
+            <div className="absolute bottom-0 flex h-full w-full items-end bg-gradient-to-t from-black/90 via-transparent to-transparent blur-xl" />
           </div>
         ))}
       </div>

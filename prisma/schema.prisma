@@ -7,182 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Episode {
-  id                   Int                 @id @default(autoincrement())
-  season_id            Int
-  series_id            Int
-  video_content_id     Int                 @unique
-  episode_number       Int
-  name                 String?
-  overview             String?
-  still_path           String?
-  runtime              Int?
-  is_korean_translated Boolean             @default(false)
-  created_at           DateTime            @default(now())
-  updated_at           DateTime
-  Season               Season              @relation(fields: [season_id], references: [id])
-  Series               Series              @relation(fields: [series_id], references: [id])
-  VideoContent         VideoContent        @relation(fields: [video_content_id], references: [id])
-  UserWatchProgress    UserWatchProgress[]
+// VideoContent의 타입 ( video )
+enum VideoContentType {
+  MOVIE
+  EPISODE
+  SPECIAL
 }
 
-model Genres {
-  id       Int     @id @default(autoincrement())
-  name     String  @unique
-  seriesId Int?
-  Series   Series? @relation(fields: [seriesId], references: [id])
+// 시청 상태 
+enum WatcWatchStatus {
+  WATCHING // 보는 중인 경우
+  COMPLETED // 모두 본 경우
+  DROPPED // 보다 만 경우 
 }
 
-model Magnet {
-  id           Int            @id @default(autoincrement())
-  chiper_link  String         @unique
-  created_at   DateTime       @default(now())
-  updated_at   DateTime
-  VideoContent VideoContent[]
-}
-
-model Membership {
-  id         Int            @id @default(autoincrement())
-  type       MembershipType @default(PREMIUM)
-  started_at DateTime       @default(now())
-  expires_at DateTime?
-  user_id    Int            @unique
-  User       User           @relation(fields: [user_id], references: [id])
-}
-
-model Movie {
-  id                Int                 @id @default(autoincrement())
-  video_content_id  Int                 @unique
-  title             String
-  overview          String
-  poster_path       String?
-  backdrop_path     String?
-  runtime           Int?
-  release_date      DateTime?
-  created_at        DateTime            @default(now())
-  updated_at        DateTime
-  series_id         Int?
-  Series            Series?             @relation(fields: [series_id], references: [id])
-  VideoContent      VideoContent        @relation(fields: [video_content_id], references: [id])
-  UserWatchProgress UserWatchProgress[]
-}
-
-model Season {
-  id                 Int                 @id @default(autoincrement())
-  series_id          Int?
-  season_number      Int
-  name               String?
-  overview           String?
-  poster_path        String?
-  air_date           DateTime?
-  nyaa_query         String?
-  should_download    Boolean             @default(false)
-  tmdb_season_number Int
-  episode_offset     Int?
-  created_at         DateTime            @default(now())
-  updated_at         DateTime
-  source_type        SourceType          @default(TVA)
-  Episode            Episode[]
-  Series             Series?             @relation(fields: [series_id], references: [id])
-  UserWatchProgress  UserWatchProgress[]
-  VideoContent       VideoContent[]
-}
-
-model Series {
-  id                Int                 @id
-  title             String              @unique
-  overview          String
-  logo              String?
-  backdrop_path     String?
-  poster_path       String?
-  original          SeriesOriginal?
-  status            SeriesStatus
-  created_at        DateTime            @default(now())
-  updated_at        DateTime
-  Episode           Episode[]
-  Genres            Genres[]
-  Movie             Movie[]
-  Season            Season[]
-  UserWatchProgress UserWatchProgress[]
-  VideoContent      VideoContent[]
-}
-
-model Token {
-  id         Int      @id @default(autoincrement())
-  token      String   @unique
-  user_id    Int?
-  created_at DateTime @default(now())
-  updated_at DateTime
-  User       User?    @relation(fields: [user_id], references: [id])
-}
-
-model User {
-  id                Int                 @id @default(autoincrement())
-  email             String?             @unique
-  created_at        DateTime            @default(now())
-  updated_at        DateTime
-  avatar            String?
-  github_id         String?             @unique
-  password          String?
-  phone             String?             @unique
-  role              UserRole            @default(USER)
-  Membership        Membership?
-  Token             Token[]
-  UserWatchProgress UserWatchProgress[]
-}
-
-model UserWatchProgress {
-  id               Int             @id @default(autoincrement())
-  user_id          Int
-  video_content_id Int
-  status           WatcWatchStatus @default(WATCHING)
-  series_id        Int?
-  movie_id         Int?
-  current_time     Int             @default(0)
-  total_duration   Int?
-  created_at       DateTime        @default(now())
-  updated_at       DateTime
-  episode_id       Int?
-  season_id        Int?
-  Episode          Episode?        @relation(fields: [episode_id], references: [id])
-  Movie            Movie?          @relation(fields: [movie_id], references: [id])
-  Season           Season?         @relation(fields: [season_id], references: [id])
-  Series           Series?         @relation(fields: [series_id], references: [id])
-  User             User            @relation(fields: [user_id], references: [id])
-  VideoContent     VideoContent    @relation(fields: [video_content_id], references: [id])
-
-  @@unique([user_id, video_content_id])
-}
-
-model VideoContent {
-  id                Int                 @id @default(autoincrement())
-  watch_id          String
-  subtitle_id       String?
-  type              VideoContentType
-  opening_start     Int?
-  opening_end       Int?
-  ending_start      Int?
-  ending_end        Int?
-  created_at        DateTime            @default(now())
-  updated_at        DateTime
-  magnet_id         Int?
-  season_id         Int?
-  series_id         Int?
-  Episode           Episode?
-  Movie             Movie?
-  UserWatchProgress UserWatchProgress[]
-  Magnet            Magnet?             @relation(fields: [magnet_id], references: [id])
-  Season            Season?             @relation(fields: [season_id], references: [id])
-  Series            Series?             @relation(fields: [series_id], references: [id])
-}
-
-model WatchSession {
-  id               Int      @id @default(autoincrement())
-  video_content_id Int
-  current_time     Int?
-  backdrop_path    String?
-  created_at       DateTime @default(now())
-  updated_at       DateTime
+enum UserRole {
+  USER
+  ADMIN
 }
 
 enum MembershipType {
@@ -191,37 +32,252 @@ enum MembershipType {
   PREMIUM
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String?  @unique
+  password  String?
+  phone     String?  @unique
+  github_id String?  @unique
+  avatar    String?
+  role      UserRole @default(USER)
+
+  membership Membership?
+
+  watch_progresses UserWatchProgress[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  token Token[]
+}
+
+model Membership {
+  id         Int            @id @default(autoincrement())
+  type       MembershipType @default(PREMIUM)
+  started_at DateTime       @default(now())
+  expires_at DateTime?
+
+  user_id Int  @unique
+  user    User @relation(fields: [user_id], references: [id])
+}
+
+model Token {
+  id      Int    @id @default(autoincrement())
+  token   String @unique
+  user_id Int?
+
+  user User? @relation(fields: [user_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+}
+
+model UserWatchProgress {
+  id               Int @id @default(autoincrement())
+  user_id          Int
+  video_content_id Int
+
+  // 시청 상태
+  status WatcWatchStatus @default(WATCHING)
+
+  series_id  Int?
+  episode_id Int?
+  movie_id   Int?
+  season_id  Int?
+
+  // 재생 상태
+  current_time   Int  @default(0) // 현재 재생 시간 (초)
+  total_duration Int? // 전체 영상 길이 (초)
+
+  user          User         @relation(fields: [user_id], references: [id])
+  video_content VideoContent @relation(fields: [video_content_id], references: [id])
+  series        Series?      @relation(fields: [series_id], references: [id])
+  season        Season?      @relation(fields: [season_id], references: [id])
+
+  movie   Movie?   @relation(fields: [movie_id], references: [id])
+  episode Episode? @relation(fields: [episode_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  @@unique([user_id, video_content_id])
+}
+
 enum SeriesOriginal {
   GAME_ORIGINAL
   NOVEL_ORIGINAL
   MANGA_ORIGINAL
 }
 
+// Series의 상태
 enum SeriesStatus {
-  ONGOING
-  COMPLETED
-  UPCOMING
-  CANCELLED
+  ONGOING // 방송중인 컨텐츠
+  COMPLETED // 방영이 끝난 컨텐츠 + 영화인 경우 
+  UPCOMING // 곧 방영 예정인 컨텐츠
+  CANCELLED // 업로드가 취소된 경우 (삭제 예정인 컨텐츠)
+}
+
+model Series {
+  id            Int             @id
+  title         String          @unique
+  overview      String
+  logo          String?
+  backdrop_path String?
+  poster_path   String?
+  original      SeriesOriginal?
+  status        SeriesStatus
+
+  genres   Genres[]
+  season   Season[]
+  episodes Episode[]
+  movies   Movie[]
+
+  video_content VideoContent[]
+
+  user_watch_progress UserWatchProgress[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+}
+
+model Genres {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  seriesId Int?
+  series   Series? @relation(fields: [seriesId], references: [id])
 }
 
 enum SourceType {
-  TVA
-  BD
+  TVA // TV 애니메이션
+  BD // DB 애니메이션
 }
 
-enum UserRole {
-  USER
-  ADMIN
+model Season {
+  id            Int       @id @default(autoincrement())
+  series_id     Int?
+  season_number Int
+  name          String?
+  overview      String?
+  poster_path   String?
+  air_date      DateTime?
+
+  nyaa_query      String? // nyaa.si 사이트의 query (크롤링)
+  should_download Boolean @default(false)
+
+  // TMDB 
+  tmdb_season_number Int
+  episode_offset     Int? // season이 이상하게 나눠져 있을 경우 앞의 episode를 무시하고 ~~ 화부터 시작하기 위해 사용 ) 시즌3 1화 -> 시즌1 51화의 경우
+
+  // Season Type
+  source_type SourceType @default(TVA)
+
+  episodes      Episode[]
+  video_content VideoContent[]
+
+  series Series? @relation(fields: [series_id], references: [id])
+
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt()
+  UserWatchProgress UserWatchProgress[]
 }
 
-enum VideoContentType {
-  MOVIE
-  EPISODE
-  SPECIAL
+model Episode {
+  id               Int @id @default(autoincrement())
+  season_id        Int
+  series_id        Int
+  video_content_id Int @unique
+
+  episode_number Int
+  name           String?
+  overview       String?
+  still_path     String?
+  runtime        Int?
+
+  // TMDB에서 한국어로 안되어 있는 경우가 있어 기본을 false로 하고 업데이트 하는 방식으로...
+  is_korean_translated Boolean @default(false)
+
+  season        Season?      @relation(fields: [season_id], references: [id])
+  series        Series?      @relation(fields: [series_id], references: [id])
+  video_content VideoContent @relation(fields: [video_content_id], references: [id])
+
+  user_watch_progress UserWatchProgress[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
 }
 
-enum WatcWatchStatus {
-  WATCHING
-  COMPLETED
-  DROPPED
+model Movie {
+  id Int @id @default(autoincrement())
+
+  video_content_id Int  @unique
+  series_id        Int?
+
+  title         String
+  overview      String
+  poster_path   String?
+  backdrop_path String?
+  runtime       Int?
+  release_date  DateTime?
+
+  video_content VideoContent @relation(fields: [video_content_id], references: [id])
+  series        Series?      @relation(fields: [series_id], references: [id])
+
+  user_watch_progress UserWatchProgress[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+}
+
+model Magnet {
+  id Int @id @default(autoincrement())
+
+  chiper_link String @unique
+
+  video_contents VideoContent[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+}
+
+model VideoContent {
+  id          Int              @id @default(autoincrement())
+  series_id   Int?
+  season_id   Int?
+  // Video Content 재생 정보.
+  watch_id    String
+  subtitle_id String?
+  type        VideoContentType
+
+  // 재생 에 관련된 정보
+  opening_start Int? // 오프닝 시작 시간 (초)
+  opening_end   Int? // 오프닝 종료 시간 (초)
+  ending_start  Int? // 엔딩 시작 시간 (초)
+  ending_end    Int? // 엔딩 종료 시간 (초)
+
+  // Episode, Movie, magnet...
+  episode Episode?
+  movie   Movie?
+  series  Series?  @relation(fields: [series_id], references: [id])
+  season  Season?  @relation(fields: [season_id], references: [id])
+
+  // magnet 
+  magnet    Magnet? @relation(fields: [magnet_id], references: [id])
+  magnet_id Int?
+
+  user_watch_progress UserWatchProgress[]
+
+  // 날짜 정보.
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+}
+
+model WatchSession {
+  id Int @id @default(autoincrement())
+
+  video_content_id Int
+  current_time     Int?
+  backdrop_path    String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
 }
