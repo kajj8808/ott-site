@@ -26,7 +26,7 @@ export default function WatchingList({
   return (
     <div className="w-full">
       <ContentTitle title={title} subtitle={subtitle} />
-      <div className="mt-2 grid grid-cols-2 gap-1 sm:mt-3 sm:grid-cols-3 xl:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
+      <div className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(min(310px,100%),1fr))] gap-2 overflow-hidden sm:mt-3">
         {contents?.map((content) => (
           <Link
             href={`/watch/${content.id}`}

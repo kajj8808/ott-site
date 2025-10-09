@@ -1,6 +1,35 @@
 "use server";
 import { redirect } from "next/navigation";
 
+export interface Episode {
+  series: {
+    id: number;
+    title: string;
+    backdrop_path: string | null;
+    poster_path: string | null;
+  } | null;
+  season: {
+    name: string | null;
+  } | null;
+  name: string | null;
+  id: number;
+  created_at: string;
+  updated_at: string;
+  video_content_id: number;
+  series_id: number;
+  season_id: number;
+  overview: string | null;
+  episode_number: number;
+  still_path: string | null;
+  runtime: number | null;
+  is_korean_translated: boolean;
+}
+
+interface EpisodeResponse {
+  ok: boolean;
+  result: Episode[];
+}
+
 export interface Series {
   id: number;
   title: string;
@@ -20,7 +49,7 @@ export async function getNowPlayingSeries() {
     await fetch(
       `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/now_playing`,
     )
-  ).json()) as SeriesResponse;
+  ).json()) as EpisodeResponse;
 
   if (!json.ok) {
     return null;
@@ -32,7 +61,7 @@ export async function getNowPlayingSeries() {
 export async function getSeriesIncludingDb() {
   const json = (await (
     await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/bd`)
-  ).json()) as SeriesResponse;
+  ).json()) as EpisodeResponse;
 
   if (!json.ok) {
     return null;

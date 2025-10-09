@@ -32,9 +32,9 @@ const getCachedUserWatchProgress = nextCache(
 const getCachedContents = nextCache(
   async () => {
     const nowPlayingSeries = await getNowPlayingSeries();
-    const allSeires = await getAllSeries();
+    const allSeries = await getAllSeries();
     const allMovies = await getMovies();
-    return { nowPlayingSeries, allSeires, allMovies };
+    return { nowPlayingSeries, allSeries, allMovies };
   },
   ["series"],
   { revalidate: 520, tags: ["home", "contents"] },
@@ -49,13 +49,28 @@ export default async function Home() {
   const userSession = await authWithUserSession();
   const user = userSession.user;
 
-  const { nowPlayingSeries, allSeires, allMovies } = await getCachedContents();
+  const { nowPlayingSeries, allSeries, allMovies } = await getCachedContents();
 
   getMovies();
-  if (!nowPlayingSeries || !allSeires || !allMovies || !user) {
+  if (!nowPlayingSeries || !allSeries || !allMovies || !user) {
     return notFound();
   }
   const watchingContents = await getCachedUserWatchProgress(user.token);
+
+  const nowPlayingContents =
+    nowPlayingSeries
+      ?.map((episode) => {
+        if (!episode.series) {
+          return null;
+        }
+        return {
+          ...episode.series,
+          seasonName: episode.season?.name,
+          episodeNumber: episode.episode_number,
+          updatedAt: episode.updated_at,
+        };
+      })
+      .filter((s): s is NonNullable<typeof s> => !!s) ?? [];
 
   return (
     <div>
@@ -72,7 +87,7 @@ export default async function Home() {
         <ContentsList
           subtitle="Series"
           title="Now Playing"
-          contents={nowPlayingSeries}
+          contents={nowPlayingContents}
           contentType="EPISODE"
         />
 
@@ -86,7 +101,7 @@ export default async function Home() {
         <ContentsList
           subtitle="Series"
           title="ALL"
-          contents={allSeires}
+          contents={allSeries || []}
           contentType="EPISODE"
         />
 
