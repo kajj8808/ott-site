@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Episode, Season } from "../(private)/series/[id]/action";
+import { Episode, Season } from "../(tabs)/series/[id]/action";
 
 export default function SeasonEpisodeList({
   seasons,

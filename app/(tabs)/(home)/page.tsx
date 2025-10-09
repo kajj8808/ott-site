@@ -43,7 +43,7 @@ const getCachedContents = nextCache(
 export default async function Home() {
   const isBot = await isBotRequest();
   if (isBot) {
-    return;
+    return null;
   }
 
   const userSession = await authWithUserSession();
@@ -65,9 +65,9 @@ export default async function Home() {
         }
         return {
           ...episode.series,
-          seasonName: episode.season?.name,
+          seasonName: episode.season?.name ?? undefined,
           episodeNumber: episode.episode_number,
-          updatedAt: episode.updated_at,
+          updatedAt: new Date(episode.updated_at),
         };
       })
       .filter((s): s is NonNullable<typeof s> => !!s) ?? [];

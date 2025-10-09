@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   VideoContent,
   VideoContentSeason,
-} from "../(private)/watch/[id]/action";
+} from "../(tabs)/watch/[id]/action";
 import { cls } from "../utils/libs";
 import Link from "next/link";
 

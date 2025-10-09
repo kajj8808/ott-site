@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  updateWatchRecord,
-  VideoContent,
-} from "../(private)/watch/[id]/action";
+import { updateWatchRecord, VideoContent } from "../(tabs)/watch/[id]/action";
 
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
