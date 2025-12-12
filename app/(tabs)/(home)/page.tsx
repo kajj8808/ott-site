@@ -1,19 +1,21 @@
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { unstable_cache as nextCache } from "next/cache";
+
+import { authWithUserSession } from "@/app/lib/server/auth";
+import { isBotRequest } from "@/app/lib/server/isBot";
+
+import Header from "@/app/components/Header";
+import WatchingList from "@/app/components/WatchingList";
+import ContentsList from "@/app/components/ContentList";
+
 import {
   getAllSeries,
   getMovies,
   getNowPlayingSeries,
+  getSeriesIncludingDb,
   getUserWatingProgress,
 } from "./action";
-
-import { notFound } from "next/navigation";
-
-import { unstable_cache as nextCache } from "next/cache";
-import Header from "@/app/components/Header";
-import { authWithUserSession } from "@/app/lib/server/auth";
-import WatchingList from "@/app/components/WatchingList";
-import ContentsList from "@/app/components/ContentList";
-import { Metadata } from "next";
-import { isBotRequest } from "@/app/lib/server/isBot";
 
 export const metadata: Metadata = {
   title: "home",
@@ -34,7 +36,8 @@ const getCachedContents = nextCache(
     const nowPlayingSeries = await getNowPlayingSeries();
     const allSeries = await getAllSeries();
     const allMovies = await getMovies();
-    return { nowPlayingSeries, allSeries, allMovies };
+    const dbSeries = await getSeriesIncludingDb();
+    return { nowPlayingSeries, allSeries, allMovies, dbSeries };
   },
   ["series"],
   { revalidate: 520, tags: ["home", "contents"] },
@@ -49,10 +52,11 @@ export default async function Home() {
   const userSession = await authWithUserSession();
   const user = userSession.user;
 
-  const { nowPlayingSeries, allSeries, allMovies } = await getCachedContents();
+  const { nowPlayingSeries, allSeries, allMovies, dbSeries } =
+    await getCachedContents();
 
   getMovies();
-  if (!nowPlayingSeries || !allSeries || !allMovies || !user) {
+  if (!nowPlayingSeries || !allSeries || !allMovies || !user || !dbSeries) {
     return notFound();
   }
   const watchingContents = await getCachedUserWatchProgress(user.token);
@@ -71,6 +75,8 @@ export default async function Home() {
         };
       })
       .filter((s): s is NonNullable<typeof s> => !!s) ?? [];
+
+  const dbSeiresContents = dbSeries;
 
   return (
     <div>
@@ -96,6 +102,13 @@ export default async function Home() {
           title="ALL"
           contents={allMovies}
           contentType="MOVIE"
+        />
+
+        <ContentsList
+          subtitle="Series"
+          title="DB Include"
+          contents={dbSeiresContents}
+          contentType="EPISODE"
         />
 
         <ContentsList

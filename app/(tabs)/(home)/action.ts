@@ -61,7 +61,17 @@ export async function getNowPlayingSeries() {
 export async function getSeriesIncludingDb() {
   const json = (await (
     await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/bd`)
-  ).json()) as EpisodeResponse;
+  ).json()) as {
+    ok: boolean;
+    result: {
+      id: number;
+      title: string;
+      backdrop_path: string;
+      logo: string | null;
+      overview: string;
+      updated_at: string;
+    }[];
+  };
 
   if (!json.ok) {
     return null;
