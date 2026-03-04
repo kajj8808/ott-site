@@ -1,4 +1,4 @@
-import Header from "@/app/components/Header";
+/* import Header from "@/app/components/Header";
 import { daysAgo } from "@/app/utils/libs";
 import { getMetadata, getMovieDetial } from "./action";
 import { notFound } from "next/navigation";
@@ -75,4 +75,9 @@ export default async function Page({
       </div>
     </div>
   );
+}
+ */
+
+export default function Page() {
+  return <div>Movie Detail Page</div>;
 }
