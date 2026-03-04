@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { useEffect, useState } from "react";
 import {} from "../(tabs)/watch/[id]/action";
@@ -58,7 +58,7 @@ export default function ContentNavigator({
           </Link>
         ))}
       </ul>
-      {/*  <h5>{videoContent.series?.title}</h5>
+   <h5>{videoContent.series?.title}</h5>
       <ul>
         {videoContent.series?.season?.map((season) => (
           <li key={season.id}>
@@ -68,7 +68,8 @@ export default function ContentNavigator({
             ))}
           </li>
         ))}
-      </ul> */}
+      </ul>
     </div>
   );
 }
+ */

@@ -1,8 +1,9 @@
 "use server";
 
-import { getUserSession } from "@/app/lib/server/session";
-import { Metadata } from "next";
+/* import { getUserSession } from "@/app/lib/server/session";
 import { revalidateTag } from "next/cache";
+ */
+import { Metadata } from "next";
 import { WatchContentContextResponseSchema } from "./schema";
 
 export async function getWatchContent({
@@ -36,32 +37,15 @@ export async function getWatchContent({
     );
   }
 
-  const series = parsed.data.data.series;
-  const seasons = series?.seasons ?? series?.season ?? [];
-
-  if (process.env.NODE_ENV !== "production") {
-    if (seasons.length === 0) {
-      console.warn("[watch-context] 시즌 목록 없음", {
-        contentId,
-        seriesKeys: Object.keys((json as { data?: { series?: object } }).data?.series ?? {}),
-      });
-    } else {
-      console.info("[watch-context] 시즌 목록 수신", {
-        contentId,
-        seasonCount: seasons.length,
-      });
-    }
-  }
-
   return parsed.data.data;
 }
-
+/*
 interface UpdateWatchRecordProps {
   watchId: string;
   duration: number;
   currentTime: number;
 }
-export async function updateWatchRecord({
+ export async function updateWatchRecord({
   watchId,
   duration,
   currentTime,
@@ -88,7 +72,7 @@ export async function updateWatchRecord({
     },
   );
   revalidateTag("watch_progress");
-}
+} */
 
 interface OpenGraphResult {
   ok: boolean;

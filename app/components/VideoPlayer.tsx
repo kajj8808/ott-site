@@ -1,7 +1,7 @@
 "use client";
 
-import { updateWatchRecord } from "../(tabs)/watch/[id]/action";
-
+/* import { updateWatchRecord } from "../(tabs)/watch/[id]/action";
+ */
 import Link from "next/link";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -41,11 +41,11 @@ export default function VideoPlayer({
     const video = videoRef.current;
     const watchId = videoContent.content.watchId;
     if (video && !video.paused && watchId) {
-      updateWatchRecord({
+      /*   updateWatchRecord({
         watchId,
         duration: video.duration,
         currentTime: video.currentTime,
-      });
+      }); */
     }
   }, [videoContent.content.watchId]);
 
