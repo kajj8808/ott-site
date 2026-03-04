@@ -2,103 +2,151 @@
 
 import Image from "next/image";
 import Link from "next/link";
+
 import { ChangeEvent, useEffect, useState } from "react";
-import { Episode, Season } from "../(tabs)/series/[id]/action";
+
+import type { SeriesPersonalizedResponse } from "@/app/(tabs)/series/[id]/schema";
+
+type SeriesData = SeriesPersonalizedResponse["data"];
+type SeasonRecord = SeriesData["seasons"][number];
+type SelectedSeasonRecord = NonNullable<SeriesData["selectedSeason"]>;
+
+export type Episode = SeasonRecord["episodes"][number];
+
+export interface SeasonCommon {
+  id: SeasonRecord["id"];
+  seasonNumber: SeasonRecord["seasonNumber"];
+  name: SeasonRecord["name"];
+  episodes: Episode[];
+}
+
+export interface Season extends SeasonCommon {
+  seasonName?: SeasonRecord["seasonName"];
+  airDate?: SeasonRecord["airDate"];
+  episodeCount?: SeasonRecord["episodeCount"];
+  posterPath?: SeasonRecord["posterPath"];
+  userProgress?: SeasonRecord["userProgress"];
+  resume?: SeasonRecord["resume"];
+}
+
+export type LastPlayedSeason = NonNullable<SeriesData["lastPlayedSeason"]>;
+
+export interface SelectedSeason extends SeasonCommon {
+  posterPath: SelectedSeasonRecord["posterPath"];
+}
+
+interface SeasonEpisodeListProps {
+  seasons: Season[];
+  lastPlayedSeason: LastPlayedSeason | null;
+  selectedSeason: SelectedSeason | null;
+}
 
 export default function SeasonEpisodeList({
   seasons,
-  lastWatchedProgress,
-}: {
-  seasons: Season[];
-  lastWatchedProgress?: { video_content_id: number };
-}) {
-  const [season, setSeason] = useState<Season | undefined>(undefined);
-  const [sortedEpisodes, setSortedEpisodes] = useState<Episode[]>([]);
+  lastPlayedSeason,
+  selectedSeason,
+}: SeasonEpisodeListProps) {
+  const [season, setSeason] = useState<Season | undefined>(() => {
+    if (selectedSeason) {
+      return {
+        id: selectedSeason.id,
+        seasonNumber: selectedSeason.seasonNumber,
+        name: selectedSeason.name,
+        seasonName: selectedSeason.name,
+        airDate: null,
+        episodes: selectedSeason.episodes,
+      };
+    }
+    if (lastPlayedSeason?.id == null) {
+      return seasons[0];
+    }
+    return (
+      seasons.find((item) => item.id === lastPlayedSeason.id) ?? seasons[0]
+    );
+  });
 
   useEffect(() => {
-    if (seasons.length > 0) {
-      const sortedSeasons = seasons.sort((a, b) => {
-        const aDate = new Date(a.season_number);
-        const bDate = new Date(b.season_number);
-        if (aDate > bDate) {
-          return 1;
-        }
-        if (aDate < bDate) {
-          return -1;
-        }
-        return 0;
+    if (selectedSeason) {
+      setSeason({
+        id: selectedSeason.id,
+        seasonNumber: selectedSeason.seasonNumber,
+        name: selectedSeason.name,
+        seasonName: selectedSeason.name,
+        airDate: null,
+        episodes: selectedSeason.episodes,
       });
-
-      if (lastWatchedProgress) {
-        const lastWatchedSeason = sortedSeasons.find((season) => {
-          return season.episodes.find(
-            (episode) =>
-              episode.video_content_id === lastWatchedProgress.video_content_id,
-          );
-        });
-        setSeason(lastWatchedSeason);
-      } else {
-        setSeason(sortedSeasons[0]);
-      }
+      return;
     }
-  }, [seasons, lastWatchedProgress]);
-
-  useEffect(() => {
-    if (season?.episodes) {
-      const sortedEpisodes = season.episodes.sort((a, b) => {
-        return a.episode_number - b.episode_number;
-      });
-      setSortedEpisodes(sortedEpisodes);
+    if (lastPlayedSeason?.id == null) {
+      setSeason(seasons[0]);
+      return;
     }
-  }, [season]);
+    setSeason(
+      seasons.find((item) => item.id === lastPlayedSeason.id) ?? seasons[0],
+    );
+  }, [lastPlayedSeason?.id, selectedSeason, seasons]);
 
-  const onSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    seasons.forEach((season) => {
-      if (season.name === e.target.value) {
-        setSeason(season);
-      }
-    });
+  const onSelectChange = async (event: ChangeEvent<HTMLSelectElement>) => {
+    const nextSeason = seasons.find((s) => String(s.id) === event.target.value);
+    if (nextSeason) {
+      setSeason(nextSeason);
+    }
   };
 
   return (
     <>
       <div className="flex justify-between px-3 pb-3 text-base font-medium sm:text-lg">
-        <p>{season?.source_type}</p>
+        <p>{`Season ${season?.seasonNumber ?? ""}`}</p>
         {seasons.length < 2 ? (
           <p>{season?.name}</p>
         ) : (
           <select
-            value={season?.name}
-            onChange={onSelectChange}
+            value={season?.id ?? ""}
             className="bg-background"
+            onChange={onSelectChange}
           >
             {seasons.map((season) => (
-              <option key={season.name}>{season.name}</option>
+              <option
+                key={
+                  season.id ??
+                  `season-${season.seasonNumber ?? season.name ?? "unknown"}`
+                }
+                value={season.id ?? ""}
+              >
+                {season.name}
+              </option>
             ))}
           </select>
         )}
       </div>
       <div className="flex flex-col px-3">
-        {sortedEpisodes.map((episode) => (
+        {season?.episodes?.map((episode) => (
           <Link
-            key={episode.video_content_id}
+            key={episode.id ?? `${episode.episodeNumber}-${episode.name}`}
             className="grid cursor-pointer grid-cols-12 gap-3 border-b border-white/20 px-2 py-3 transition-colors hover:bg-white/20 nth-[1]:border-t"
-            href={`/watch/${episode.video_content_id}`}
+            href={episode.content?.id ? `/watch/${episode.content.id}` : "#"}
           >
             <div className="relative col-span-3 overflow-hidden rounded-md">
-              <Image
-                src={episode.still_path}
-                alt={episode.video_content_id + ""}
-                width={256}
-                height={144}
-              />
-              {episode.user_watch_progress[0] ? (
+              {episode.stillPath ? (
+                <Image
+                  src={episode.stillPath}
+                  alt={`${episode.id ?? "episode"}`}
+                  width={256}
+                  height={144}
+                />
+              ) : (
+                <div className="aspect-video w-full bg-white/10" />
+              )}
+              {episode.progress && episode.progress.totalDuration ? (
                 <div className="absolute bottom-0 left-0 h-1 w-full">
                   <div className="h-full bg-neutral-500" />
                   <div
                     className="absolute top-0 z-30 h-full bg-indigo-600"
                     style={{
-                      width: `${((+episode.user_watch_progress[0].current_time * 100) / +episode.user_watch_progress[0].total_duration).toFixed(0)}%`,
+                      width: `${(
+                        (episode.progress.currentTime * 100) /
+                        episode.progress.totalDuration
+                      ).toFixed(0)}%`,
                     }}
                   />
                 </div>
@@ -107,12 +155,14 @@ export default function SeasonEpisodeList({
             <div className="col-span-9 flex h-full w-full flex-col gap-1 pt-1.5 sm:gap-2 sm:pt-2">
               <div className="flex justify-between text-sm font-semibold sm:text-base">
                 <h5>
-                  {episode.episode_number}.
-                  {episode.name?.length > 18
-                    ? `${episode.name.slice(0, 18)}...`
-                    : episode.name}
+                  {episode.episodeNumber}.
+                  {episode.name
+                    ? episode.name.length > 18
+                      ? `${episode.name.slice(0, 18)}...`
+                      : episode.name
+                    : ""}
                 </h5>
-                <h5>{episode.runtime}분</h5>
+                <h5>{episode.runtime ?? "-"}분</h5>
               </div>
               <p className="line-clamp-1 text-sm text-pretty opacity-90 sm:line-clamp-2">
                 {episode.overview}

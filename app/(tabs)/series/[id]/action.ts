@@ -1,66 +1,9 @@
 "use server";
 
-import { destroyUserSession } from "@/app/lib/server/auth";
-import { Metadata } from "next";
-import { redirect } from "next/navigation";
-
-export interface Episode {
-  overview: string;
-  name: string;
-  episode_number: number;
-  video_content_id: number;
-  still_path: string;
-  runtime: number;
-  updated_at: string;
-  user_watch_progress: {
-    current_time: number;
-    total_duration: number;
-  }[];
-}
-export interface Season {
-  name: string;
-  season_number: number;
-  episodes: Episode[];
-  source_type: string;
-  updated_at: string;
-}
-interface SeriesResponse {
-  ok: boolean;
-  series: {
-    title: string;
-    overview: string;
-    backdrop_path: string;
-    updated_at: string;
-    season: Season[];
-  };
-  lastWatchedProgress?: {
-    video_content_id: number;
-  };
-}
-export async function getSeriesDetail(seriesId: string, userToken: string) {
-  if (!userToken) {
-    await destroyUserSession();
-    redirect("/log-in");
-  }
-  const json = (await (
-    await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/${seriesId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      },
-    )
-  ).json()) as SeriesResponse;
-
-  if (json.ok) {
-    return {
-      series: json.series,
-      lastWatchedProgress: json.lastWatchedProgress,
-    };
-  }
-}
+import {
+  SeriesPersonalizedResponseSchema,
+  SeriesSeasonContextResponseSchema,
+} from "./schema";
 
 interface OpenGraphResult {
   ok: boolean;
@@ -73,10 +16,10 @@ interface OpenGraphResult {
   };
 }
 
-export async function getMetadata(seriesId: string): Promise<Metadata> {
+export async function getMetadata(seriesId: string) {
   const json = (await (
     await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/${seriesId}/open-graph`,
+      `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/series/${seriesId}/open-graph`,
     )
   ).json()) as OpenGraphResult;
 
@@ -96,4 +39,79 @@ export async function getMetadata(seriesId: string): Promise<Metadata> {
       openGraph: { title: "Bad Request" },
     };
   }
+}
+
+export async function getUserSeriesPersonalized({
+  seriesId,
+  userToken,
+  expand,
+}: {
+  seriesId: number;
+  userToken: string;
+  expand?: "seasonContexts";
+}) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/series/${seriesId}/personalized${expand ? `?expand=${expand}` : ""}`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "시리즈 개인화 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = SeriesPersonalizedResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
+}
+
+export async function getUserSeasonPersonalized({
+  seasonId,
+  userToken,
+}: {
+  seasonId: number;
+  userToken: string;
+}) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/seasons/${seasonId}/context`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+      next: {
+        revalidate: 60,
+        tags: [`season-${seasonId}-context:${userToken}:${seasonId}`],
+      },
+      cache: "force-cache",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "시리즈 시즌 개인화 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = SeriesSeasonContextResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
 }

@@ -3,123 +3,57 @@
 import { getUserSession } from "@/app/lib/server/session";
 import { Metadata } from "next";
 import { revalidateTag } from "next/cache";
+import { WatchContentContextResponseSchema } from "./schema";
 
-export interface VideoContent {
-  id: number;
-  watch_id: string;
-  subtitle_id: string | null;
-  type: "EPISODE" | "MOVIE";
-  opening_start: number | null;
-  opening_end: number | null;
-  ending_start: number | null;
-  ending_end: number | null;
-
-  created_at: string;
-  updated_at: string;
-
-  episode?: { episode_number: number; name: string };
-  season?: { id: number; name: string };
-
-  series?: {
-    id: number;
-    title: string;
-    status: string;
-    season?: VideoContentSeason[];
-  };
-  user_progress?: {
-    current_time: number;
-    total_duration: number;
-  };
-  next_episode?: Episode | null;
-
-  movie?: {
-    title: string;
-    id: boolean;
-  };
-}
-
-export interface Episode {
-  id: number;
-  season_id: number;
-  series_id: number;
-  video_content_id: number;
-  episode_number: number;
-  name: string;
-  overview: string;
-  still_path: string;
-  runtime: number;
-
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Movie {
-  id: number;
-  video_content_id: number;
-  title: string;
-  overview: string;
-
-  backdrop_path: string | null;
-
-  runtime: number | null;
-
-  release_date: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface VideoContentSeason {
-  id: number;
-  name: string;
-  season_number: number;
-  updated_at: string;
-  episodes?: VideoContentEpisode[];
-}
-
-export interface VideoContentEpisode {
-  id: number;
-  name: string;
-  overview: string;
-  runtime: number;
-  update_at: string;
-  still_path: string;
-  episode_number: number;
-  video_content_id: number;
-  user_watch_progress?: {
-    total_duration: number;
-    current_time: number;
-  }[];
-}
-
-export interface Series {
-  id: number;
-  title: string;
-}
-
-interface VideoResponse {
-  ok: boolean;
-  result: VideoContent;
-}
-
-export async function getVideoContentDetail(
-  contentId: string,
-  userToken: string,
-) {
-  const json = (await (
-    await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${contentId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
+export async function getWatchContent({
+  contentId,
+  userToken,
+}: {
+  contentId: string;
+  userToken: string;
+}) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/watch/${contentId}/context`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
       },
-    )
-  ).json()) as VideoResponse;
+    },
+  );
 
-  if (json.ok) {
-    return json.result;
+  if (!response.ok) {
+    throw new Error(
+      "시청 컨텐츠 개인화 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
   }
+
+  const json = await response.json();
+  const parsed = WatchContentContextResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const series = parsed.data.data.series;
+  const seasons = series?.seasons ?? series?.season ?? [];
+
+  if (process.env.NODE_ENV !== "production") {
+    if (seasons.length === 0) {
+      console.warn("[watch-context] 시즌 목록 없음", {
+        contentId,
+        seriesKeys: Object.keys((json as { data?: { series?: object } }).data?.series ?? {}),
+      });
+    } else {
+      console.info("[watch-context] 시즌 목록 수신", {
+        contentId,
+        seasonCount: seasons.length,
+      });
+    }
+  }
+
+  return parsed.data.data;
 }
 
 interface UpdateWatchRecordProps {
@@ -138,7 +72,7 @@ export async function updateWatchRecord({
   }
 
   await fetch(
-    `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/user/watch-record`,
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/user/watch-record`,
     {
       method: "POST",
       headers: {
@@ -179,7 +113,7 @@ interface OpenGraphResult {
 export async function getMetadata(videoContentId: string) {
   const json = (await (
     await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/videos/${videoContentId}/open-graph`,
+      `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/videos/${videoContentId}/open-graph`,
     )
   ).json()) as OpenGraphResult;
 

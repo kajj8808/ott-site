@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  VideoContent,
-  VideoContentSeason,
-} from "../(tabs)/watch/[id]/action";
+import {} from "../(tabs)/watch/[id]/action";
 import { cls } from "../utils/libs";
 import Link from "next/link";
 

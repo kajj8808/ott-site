@@ -6,12 +6,12 @@ interface Content {
   id: number;
   backdrop_path: string;
   title: string;
-  watched_at: string;
-  series_id: number;
-  movie_id: number;
-  total_duration: string;
-  current_time: string;
-  type: "MOVIE" | "EPISODE";
+  watched_at?: string;
+  series_id?: number | null;
+  movie_id?: number | null;
+  total_duration: number | null;
+  current_time: number;
+  type: "MOVIE" | "EPISODE" | "SPECIAL";
 }
 
 export default function WatchingList({
@@ -55,7 +55,11 @@ export default function WatchingList({
               <div
                 className="absolute top-0 z-30 h-1 rounded-xs bg-indigo-600"
                 style={{
-                  width: `${((+content.current_time * 100) / +content.total_duration).toFixed(0)}%`,
+                  width: `${(content.total_duration &&
+                  content.total_duration > 0
+                    ? (content.current_time * 100) / content.total_duration
+                    : 0
+                  ).toFixed(0)}%`,
                 }}
               ></div>
             </div>

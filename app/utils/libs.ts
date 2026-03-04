@@ -4,7 +4,7 @@ export function getVideoUrl(watchId: string) {
 
 export function getSubtitleUrl(subtitleId: string | null) {
   return subtitleId
-    ? `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/subtitle/${subtitleId}`
+    ? `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/media/subtitle/${subtitleId}`
     : "undefined";
 }
 

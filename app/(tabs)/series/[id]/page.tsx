@@ -1,16 +1,16 @@
-import { daysAgo } from "@/app/utils/libs";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getMetadata, getSeriesDetail } from "./action";
-import SeasonEpisodeList from "@/app/components/SeasonEpisodeList";
 
-import { unstable_cache as nextCache } from "next/cache";
-import Header from "@/app/components/Header";
-import { Metadata } from "next";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { isBotRequest } from "@/app/lib/server/isBot";
 
-export async function generateMetadata({
+import { daysAgo } from "@/app/utils/libs";
+
+import Header from "@/app/components/Header";
+import SeasonEpisodeList from "@/app/components/SeasonEpisodeList";
+
+import { getUserSeriesPersonalized } from "./action";
+/* export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -20,12 +20,7 @@ export async function generateMetadata({
 
   return metadata;
 }
-
-const getCachedSeriesDetail = nextCache(
-  async (id, userToken) => await getSeriesDetail(id, userToken),
-  ["series_detail"],
-  { revalidate: 520, tags: ["series", "watch_progress"] },
-); // 3600 -> 1hour
+ */
 
 export default async function Page({
   params,
@@ -37,17 +32,26 @@ export default async function Page({
     return;
   }
 
-  const { id } = await params;
   const userSession = await authWithUserSession();
-  const userToken = userSession.user?.token;
+  const user = userSession.user;
+  if (!user) {
+    notFound();
+  }
+  const { id: seriesId } = await params;
 
-  const cachedSeries = await getCachedSeriesDetail(id, userToken);
-
-  if (!cachedSeries) {
+  if (isNaN(+seriesId)) {
     return notFound();
   }
 
-  const { series, lastWatchedProgress } = cachedSeries;
+  const seriesData = await getUserSeriesPersonalized({
+    seriesId: +seriesId,
+    userToken: user.auth.accessToken,
+    expand: "seasonContexts",
+  });
+
+  if (!seriesData || !seriesData.series) {
+    return notFound();
+  }
 
   return (
     <div>
@@ -55,23 +59,32 @@ export default async function Page({
       <div className="mt-20 flex justify-center">
         <div className="w-full max-w-4xl">
           <div className="relative aspect-video">
-            <Image src={series.backdrop_path} fill alt={series.title} />
+            <Image
+              src={seriesData.series.backdropPath!}
+              fill
+              alt={seriesData.series.title}
+            />
             <div className="to-background absolute top-0 left-0 h-full w-full bg-gradient-to-b from-transparent via-transparent"></div>
             <div className="absolute bottom-3">
               <h3 className="pl-3 text-2xl font-semibold sm:text-3xl">
-                {series.title}
+                {seriesData.series.title}
               </h3>
             </div>
           </div>
           <div className="flex flex-col gap-3 px-3 pb-5">
-            <span className="line-clamp-2 text-sm">{series.overview}</span>
-            <p className="text-sm">{daysAgo(series.updated_at)} 업데이트</p>
+            <span className="line-clamp-2 text-sm">
+              {seriesData.series.overview}
+            </span>
+            {seriesData.series.updatedAt ? (
+              <p className="text-sm">
+                {daysAgo(seriesData.series.updatedAt)} 업데이트
+              </p>
+            ) : null}
           </div>
           <SeasonEpisodeList
-            seasons={series.season.filter(
-              (season) => season.episodes.length > 0,
-            )}
-            lastWatchedProgress={lastWatchedProgress}
+            seasons={seriesData.seasons}
+            lastPlayedSeason={seriesData.lastPlayedSeason}
+            selectedSeason={seriesData.selectedSeason}
           />
         </div>
       </div>

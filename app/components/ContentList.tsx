@@ -6,7 +6,7 @@ import { timeAgo } from "../utils/libs";
 interface ContentList {
   id: number;
   title: string;
-  backdrop_path: string | null;
+  thumbnail: string | null;
   seasonName?: string;
   updatedAt?: Date;
   episodeNumber?: number;
@@ -41,7 +41,7 @@ export default function ContentsList({
               <Image
                 width={320}
                 height={160}
-                src={content.backdrop_path!}
+                src={content.thumbnail!}
                 alt={`${content.title}-backdrop`}
                 className="w-full transition-transform group-hover:scale-110"
               />

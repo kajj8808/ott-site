@@ -1,5 +1,11 @@
 "use server";
 import { redirect } from "next/navigation";
+import {
+  ContinueWatchingResponseSchema,
+  HomeLatestResponseSchema,
+  HomeLatestSeriesResponseSchema,
+  SeriesRecommendationsResponseSchema,
+} from "./schema";
 
 export interface Episode {
   series: {
@@ -47,7 +53,7 @@ interface SeriesResponse {
 export async function getNowPlayingSeries() {
   const json = (await (
     await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/now_playing`,
+      `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/series/now_playing`,
     )
   ).json()) as EpisodeResponse;
 
@@ -60,7 +66,7 @@ export async function getNowPlayingSeries() {
 
 export async function getSeriesIncludingDb() {
   const json = (await (
-    await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/bd`)
+    await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/series/bd`)
   ).json()) as {
     ok: boolean;
     result: {
@@ -82,7 +88,7 @@ export async function getSeriesIncludingDb() {
 
 export async function getAllSeries() {
   const json = (await (
-    await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/series/all`)
+    await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/series/all`)
   ).json()) as SeriesResponse;
 
   if (!json.ok) {
@@ -117,7 +123,7 @@ export async function getUserWatingProgress(userToken: string | undefined) {
 
   const json = (await (
     await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/user/watch-progress`,
+      `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/user/watch-progress`,
       {
         method: "GET",
         headers: {
@@ -145,9 +151,147 @@ interface MovieResponse {
 }
 export async function getMovies() {
   const json = (await (
-    await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/movie/all`)
+    await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/movie/all`)
   ).json()) as MovieResponse;
   if (json.ok) {
     return json.movies;
   }
+}
+
+/* interface UserWatchRecordResponse {
+  items: {
+    id: number;
+    userId: number;
+    videoContentId: number;
+    content: unknown;
+  };
+}
+export const getUserWatchRecords = async (userId: number) => {
+  const json = await (
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/home/continue/${userId}?limit=4`,
+    )
+  ).json();
+
+  return json;
+}; */
+
+export async function getLatestContents({
+  limit,
+  type,
+}: {
+  limit: number;
+  type: "EPISODE" | "MOVIE" | "SPECIAL";
+}) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/home/latest?limit=${limit}&type=${type}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "최신 컨텐츠를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = HomeLatestResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
+}
+
+export async function getLatestSeries({ limit }: { limit: number }) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/home/latest-series?limit=${limit}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "최신 시리즈를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = HomeLatestSeriesResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
+}
+
+export async function getContinueWatching({
+  userToken,
+  limit,
+}: {
+  userToken: string;
+  limit: number;
+}) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/continue-watching?limit=${limit}`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "계속 시청할 컨텐츠를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = ContinueWatchingResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
+}
+
+export async function getRecommendationsSeries({
+  userToken,
+  limit,
+}: {
+  userToken: string;
+  limit: number;
+}) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/recommendations/series?limit=${limit}`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "추천 컨텐츠를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = SeriesRecommendationsResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
 }

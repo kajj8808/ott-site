@@ -1,8 +1,9 @@
 import VideoPlayer from "@/app/components/VideoPlayer";
-import { getMetadata, getVideoContentDetail } from "./action";
+import { getMetadata, getWatchContent } from "./action";
 import { Metadata } from "next";
 
-import { unstable_cache as nextCache } from "next/cache";
+/* import { unstable_cache as nextCache } from "next/cache";
+ */
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { redirect } from "next/navigation";
 import { isBotRequest } from "@/app/lib/server/isBot";
@@ -18,11 +19,11 @@ export async function generateMetadata({
   return metadata;
 }
 
-const getCachedVideoContent = nextCache(
+/* const getCachedVideoContent = nextCache(
   async (id, userToken) => await getVideoContentDetail(id, userToken),
   ["video_detail"],
   { revalidate: 3600, tags: ["video"] },
-); // 3600 -> 1hour
+); // 3600 -> 1hour */
 
 export default async function Page({
   params,
@@ -39,19 +40,23 @@ export default async function Page({
   if (!userSession.user) {
     redirect("/log-in");
   }
-  const videoContent = await getCachedVideoContent(id, userSession.user.token);
-  if (!videoContent) {
-    redirect("/log-in");
-  }
+
+  const watchContent = await getWatchContent({
+    contentId: id,
+    userToken: userSession.user.auth.accessToken,
+  });
+
+  console.log("watchContent", watchContent);
 
   return (
     <div>
       {/* // FIXME: 이부분 seires => 반응형으로 movie 등.. */}
+
       <VideoPlayer
         goBackLink={
-          videoContent.series?.id ? `/series/${videoContent.series.id}` : `/`
+          watchContent.series?.id ? `/series/${watchContent.series.id}` : `/`
         }
-        videoContent={videoContent}
+        videoContent={watchContent}
       />
     </div>
   );

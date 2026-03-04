@@ -1,8 +1,5 @@
 import { login } from "./action";
 
-import { getUserSession } from "@/app/lib/server/session";
-import { redirect } from "next/navigation";
-
 import SignButton from "@/app/components/SignButton";
 import { Metadata } from "next";
 
@@ -12,10 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const session = await getUserSession();
-  if (session.user?.token) {
+  /* if (session.user?.token) {
     redirect("/");
-  }
+  } */
   return (
     <div className="dark flex h-dvh items-center justify-center scheme-dark">
       <form
