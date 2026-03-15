@@ -1,8 +1,6 @@
 "use server";
 
-/* import { getUserSession } from "@/app/lib/server/session";
-import { revalidateTag } from "next/cache";
- */
+import { getUserSession } from "@/app/lib/server/session";
 import { Metadata } from "next";
 import { WatchContentContextResponseSchema } from "./schema";
 
@@ -39,40 +37,45 @@ export async function getWatchContent({
 
   return parsed.data.data;
 }
-/*
-interface UpdateWatchRecordProps {
-  watchId: string;
-  duration: number;
-  currentTime: number;
-}
- export async function updateWatchRecord({
-  watchId,
-  duration,
+
+export async function updateWatchRecord({
+  videoContentId,
   currentTime,
-}: UpdateWatchRecordProps) {
-  const session = await getUserSession();
-  if (!session.user) {
-    return;
+  duration,
+}: {
+  videoContentId: number;
+  currentTime: number;
+  duration: number;
+}) {
+  const userSession = await getUserSession();
+  const user = userSession.user;
+
+  if (!user) {
+    throw new Error("로그인이 필요합니다.");
   }
 
-  await fetch(
-    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/api/user/watch-record`,
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/watch-records`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session.user.token}`,
+        Authorization: `Bearer ${user.auth.accessToken}`,
       },
-
       body: JSON.stringify({
-        watchId,
-        duration,
+        videoContentId,
         currentTime,
+        duration,
       }),
     },
   );
-  revalidateTag("watch_progress");
-} */
+
+  if (!response.ok) {
+    throw new Error(
+      "시청 기록을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+}
 
 interface OpenGraphResult {
   ok: boolean;

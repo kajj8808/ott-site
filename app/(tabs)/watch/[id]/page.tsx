@@ -1,4 +1,3 @@
-import VideoPlayer from "@/app/components/VideoPlayer";
 import { getMetadata, getWatchContent } from "./action";
 import { Metadata } from "next";
 
@@ -7,6 +6,7 @@ import { Metadata } from "next";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { redirect } from "next/navigation";
 import { isBotRequest } from "@/app/lib/server/isBot";
+import VideoPlayer from "@/app/components/VideoPlayer";
 
 export async function generateMetadata({
   params,
@@ -54,9 +54,11 @@ export default async function Page({
 
       <VideoPlayer
         goBackLink={
-          watchContent.series?.id ? `/series/${watchContent.series.id}` : `/`
+          watchContent.videoContent.series?.id
+            ? `/series/${watchContent.videoContent.series.id}`
+            : `/`
         }
-        videoContent={watchContent}
+        watchContent={watchContent}
       />
     </div>
   );

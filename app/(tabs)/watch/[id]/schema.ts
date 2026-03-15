@@ -1,18 +1,8 @@
 import { z } from "zod";
+
 export const WatchContentContextResponseSchema = z.object({
   ok: z.literal(true),
   data: z.object({
-    content: z.object({
-      id: z.number().nullable(),
-      watchId: z.string().nullable(),
-      watchUrl: z.string().nullable(),
-      subtitleId: z.string().nullable(),
-      type: z.enum(["EPISODE", "MOVIE"]).nullable(),
-      seriesId: z.number().nullable(),
-      seasonId: z.number().nullable(),
-      episodeId: z.number().nullable(),
-      movieId: z.number().nullable(),
-    }),
     videoContent: z.object({
       id: z.number().nullable(),
       watchId: z.string().nullable(),
@@ -45,15 +35,6 @@ export const WatchContentContextResponseSchema = z.object({
           title: z.string().nullable(),
         })
         .nullable(),
-      progress: z
-        .object({
-          videoContentId: z.number().nullable(),
-          currentTime: z.number(),
-          totalDuration: z.number().nullable(),
-          status: z.enum(["WATCHING", "COMPLETED", "DROPPED"]).nullable(),
-          updatedAt: z.string().nullable(),
-        })
-        .nullable(),
     }),
     progress: z
       .object({
@@ -64,25 +45,53 @@ export const WatchContentContextResponseSchema = z.object({
         updatedAt: z.string().nullable(),
       })
       .nullable(),
-    series: z
-      .object({ id: z.number().nullable(), title: z.string().nullable() })
-      .nullable(),
-    season: z
+    navigation: z
       .object({
-        id: z.number().nullable(),
-        seasonNumber: z.number().nullable(),
-        name: z.string().nullable(),
+        currentEpisodeNumber: z.number().int().nullable().optional(),
+        previous: z
+          .object({
+            id: z.number().int().nullable().optional(),
+            videoContentId: z.number().int().nullable().optional(),
+            watchId: z.string().nullable().optional(),
+            streamPath: z.string().nullable().optional(),
+            episodeNumber: z.number().int().nullable().optional(),
+            name: z.string().nullable().optional(),
+            stillPath: z.string().nullable().optional(),
+            runtime: z.number().int().nullable().optional(),
+            isCurrent: z.boolean().optional(),
+          })
+          .nullable()
+          .optional(),
+        next: z
+          .object({
+            id: z.number().int().nullable().optional(),
+            videoContentId: z.number().int().nullable().optional(),
+            watchId: z.string().nullable().optional(),
+            streamPath: z.string().nullable().optional(),
+            episodeNumber: z.number().int().nullable().optional(),
+            name: z.string().nullable().optional(),
+            stillPath: z.string().nullable().optional(),
+            runtime: z.number().int().nullable().optional(),
+            isCurrent: z.boolean().optional(),
+          })
+          .nullable()
+          .optional(),
+        seasonEpisodes: z
+          .array(
+            z.object({
+              id: z.number().int().nullable().optional(),
+              videoContentId: z.number().int().nullable().optional(),
+              watchId: z.string().nullable().optional(),
+              streamPath: z.string().nullable().optional(),
+              episodeNumber: z.number().int().nullable().optional(),
+              name: z.string().nullable().optional(),
+              stillPath: z.string().nullable().optional(),
+              runtime: z.number().int().nullable().optional(),
+              isCurrent: z.boolean().optional(),
+            }),
+          )
+          .optional(),
       })
-      .nullable(),
-    episode: z
-      .object({
-        id: z.number().nullable(),
-        episodeNumber: z.number().nullable(),
-        name: z.string().nullable(),
-      })
-      .nullable(),
-    movie: z
-      .object({ id: z.number().nullable(), title: z.string().nullable() })
       .nullable(),
     nextEpisode: z
       .object({
@@ -108,4 +117,20 @@ export const WatchContentContextResponseSchema = z.object({
 
 export type WatchContentContextResponse = z.infer<
   typeof WatchContentContextResponseSchema
+>;
+
+export const WatchRecordSaveResponseSchema = z.object({
+  ok: z.boolean(),
+  data: z.object({
+    item: z.object({
+      userId: z.number(),
+      videoContentId: z.number(),
+      currentTime: z.number(),
+      status: z.string(),
+    }),
+  }),
+});
+
+export type WatchRecordSaveResponse = z.infer<
+  typeof WatchRecordSaveResponseSchema
 >;

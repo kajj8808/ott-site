@@ -1,47 +1,21 @@
 "use client";
 
-import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
-
 export default function Error({
   error,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (error) {
-      console.error(error);
-    }
-  }, [error]);
-
-  const restartServer = async () => {
-    setIsLoading(true);
-    const json = await (
-      await fetch(
-        `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/server/restart`,
-        {
-          method: "GET",
-        },
-      )
-    ).json();
-
-    if (json.ok) {
-      redirect("/");
-    }
-  };
-
+  console.log(error.stack);
   return (
     <div className="flex h-dvh w-full flex-col items-center justify-center gap-3">
       <h3 className="text-2xl font-bold">Server Error</h3>
+      <p className="text-center text-white/65">{error.message}</p>
       <button
-        className="hover:text-background cursor-pointer rounded-sm border px-2 py-1.5 text-sm transition-colors hover:bg-white disabled:animate-pulse disabled:cursor-none"
-        onClick={restartServer}
-        disabled={isLoading}
+        className="cursor-pointer rounded bg-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:bg-white/20"
+        onClick={() => location.reload()}
       >
-        Restart Server
+        Try Again
       </button>
     </div>
   );
