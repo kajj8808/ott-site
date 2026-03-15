@@ -7,6 +7,7 @@ import { authWithUserSession } from "@/app/lib/server/auth";
 import { redirect } from "next/navigation";
 import { isBotRequest } from "@/app/lib/server/isBot";
 import VideoPlayer from "@/app/components/VideoPlayer";
+import { getUserSeriesPersonalized } from "../../series/[id]/action";
 
 export async function generateMetadata({
   params,
@@ -46,7 +47,24 @@ export default async function Page({
     userToken: userSession.user.auth.accessToken,
   });
 
-  console.log("watchContent", watchContent);
+  let seriesSeasons:
+    | Awaited<ReturnType<typeof getUserSeriesPersonalized>>["seasons"]
+    | undefined;
+
+  const seriesId = watchContent.videoContent.series?.id;
+
+  if (seriesId) {
+    try {
+      const seriesData = await getUserSeriesPersonalized({
+        seriesId,
+        userToken: userSession.user.auth.accessToken,
+        expand: "seasonContexts",
+      });
+      seriesSeasons = seriesData.seasons;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <div>
@@ -59,6 +77,7 @@ export default async function Page({
             : `/`
         }
         watchContent={watchContent}
+        seriesSeasons={seriesSeasons}
       />
     </div>
   );
