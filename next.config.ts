@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { hostname: "image.tmdb.org" },
-      { hostname: "kajj8808.com" },
+      { hostname: "media.kajj8808.com" },
     ],
   },
 };

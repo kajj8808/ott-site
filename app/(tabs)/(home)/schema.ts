@@ -141,3 +141,22 @@ export const SeriesRecommendationsResponseSchema = z.object({
 export type SeriesRecommendationsResponse = z.infer<
   typeof SeriesRecommendationsResponseSchema
 >;
+
+export const HomeTrendingResponseSchema = z.object({
+  ok: z.boolean(),
+  data: z.object({
+    items: z.array(
+      z.object({
+        score: z.number(),
+        content: z.object({
+          id: z.number(),
+        }),
+      }),
+    ),
+    total: z.number(),
+    windowDays: z.number(),
+    fallback: z.boolean(),
+  }),
+});
+
+export type HomeTrendingResponse = z.infer<typeof HomeTrendingResponseSchema>;

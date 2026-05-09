@@ -295,3 +295,39 @@ export async function getRecommendationsSeries({
 
   return parsed.data.data;
 }
+
+export async function getTrendingContents({
+  userToken,
+  limit,
+  days,
+}: {
+  userToken: string;
+  limit: number;
+  days: number;
+}) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/trending?limit=${limit}&days=${days}`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "트렌딩 컨텐츠를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = SeriesRecommendationsResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
+}
