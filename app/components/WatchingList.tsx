@@ -27,10 +27,10 @@ export default function WatchingList({
     <div className="w-full">
       <ContentTitle title={title} subtitle={subtitle} />
       <div className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(min(310px,100%),1fr))] gap-2 overflow-hidden sm:mt-3">
-        {contents?.map((content) => (
+        {contents?.map((content, index) => (
           <Link
             href={`/watch/${content.id}`}
-            key={content.id}
+            key={`watch-${content.id}-${index}`}
             className="group relative cursor-pointer py-1"
           >
             <div className="relative overflow-hidden rounded-sm">
@@ -50,19 +50,20 @@ export default function WatchingList({
                 </h5>
               </div>
             </div>
-            <div className="relative mx-auto mt-2 w-3/4 overflow-hidden">
-              <div className="h-1 rounded-xs bg-neutral-700"></div>
-              <div
-                className="absolute top-0 z-30 h-1 rounded-xs bg-indigo-600"
-                style={{
-                  width: `${(content.total_duration &&
-                  content.total_duration > 0
-                    ? (content.current_time * 100) / content.total_duration
-                    : 0
-                  ).toFixed(0)}%`,
-                }}
-              ></div>
-            </div>
+            {content.total_duration ? (
+              <div className="relative mx-auto mt-2 w-3/4 overflow-hidden">
+                <div className="h-1 rounded-xs bg-neutral-700"></div>
+                <div
+                  className="absolute top-0 z-30 h-1 rounded-xs bg-indigo-600"
+                  style={{
+                    width: `${(
+                      (content.current_time * 100) /
+                      content.total_duration
+                    ).toFixed(0)}%`,
+                  }}
+                ></div>
+              </div>
+            ) : null}
           </Link>
         ))}
       </div>

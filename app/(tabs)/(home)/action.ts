@@ -2,10 +2,12 @@
 import { redirect } from "next/navigation";
 import {
   ContinueWatchingResponseSchema,
+  HomeBundleResponseSchema,
   HomeLatestResponseSchema,
   HomeLatestSeriesResponseSchema,
   SeriesRecommendationsResponseSchema,
 } from "./schema";
+import { z } from "zod";
 
 export interface Episode {
   series: {
@@ -195,6 +197,96 @@ export async function getLatestContents({
 
   const json = await response.json();
   const parsed = HomeLatestResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
+}
+
+export async function getHomeBundle({ userToken }: { userToken: string }) {
+  const query = new URLSearchParams({
+    full: "true",
+    includeRails: "true",
+    includeSimilarSeries: "true",
+    latestLimit: "8",
+    continueLimit: "8",
+    recommendationLimit: "8",
+    seriesLimit: "8",
+    railsContentLimit: "8",
+    railsSeriesLimit: "8",
+    trendingLimit: "8",
+    newSeasonLimit: "8",
+    latestSeriesLimit: "8",
+    currentlyAiringLimit: "8",
+    similarSeriesLimit: "8",
+  });
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/me/home?${query.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "홈 컨텐츠를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = HomeBundleResponseSchema.safeParse(json);
+
+  if (!parsed.success) {
+    throw new Error(
+      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  return parsed.data.data;
+}
+
+const CatalogMoviesResponseSchema = z.object({
+  ok: z.literal(true),
+  data: z.object({
+    items: z.array(
+      z.object({
+        id: z.number(),
+        title: z.string(),
+        posterPath: z.string().nullable().optional(),
+        backdropPath: z.string().nullable().optional(),
+        updatedAt: z.string().optional(),
+        content: z
+          .object({
+            updatedAt: z.string(),
+          })
+          .nullable()
+          .optional(),
+      }),
+    ),
+    total: z.number(),
+  }),
+});
+
+export async function getLatestMovies({ limit }: { limit: number }) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/catalog/movies?page=1&limit=${limit}&sort=latest`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "최신 영화를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    );
+  }
+
+  const json = await response.json();
+  const parsed = CatalogMoviesResponseSchema.safeParse(json);
 
   if (!parsed.success) {
     throw new Error(

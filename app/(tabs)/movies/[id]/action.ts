@@ -1,65 +1,66 @@
 "use server";
 
 import { Metadata } from "next";
+import { z } from "zod";
 
-interface MoiveResponse {
-  ok: boolean;
-  result: {
-    id: number;
-    video_content_id: number;
-    title: string;
-    overview: string;
-    backdrop_path: string;
-    created_at: string;
-    updated_at: string;
-  };
-}
+const MovieDetailResponseSchema = z.object({
+  ok: z.literal(true),
+  data: z.object({
+    movie: z.object({
+      id: z.number(),
+      title: z.string(),
+      overview: z.string().nullable().optional(),
+      posterPath: z.string().nullable().optional(),
+      backdropPath: z.string().nullable().optional(),
+      runtime: z.number().nullable().optional(),
+      releaseDate: z.string().nullable().optional(),
+      content: z
+        .object({
+          id: z.number(),
+          updatedAt: z.string(),
+        })
+        .nullable()
+        .optional(),
+    }),
+  }),
+});
 
-export async function getMovieDetial(id: string, userToken: string) {
-  const json = (await (
-    await fetch(`${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/movie/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-    })
-  ).json()) as MoiveResponse;
+export async function getMovieDetail(movieId: string) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/catalog/movies/${movieId}`,
+    { cache: "no-store" },
+  );
 
-  if (!json.ok) {
+  if (!response.ok) {
     return null;
   }
 
-  return json.result;
-}
+  const json = await response.json();
+  const parsed = MovieDetailResponseSchema.safeParse(json);
 
-interface OpenGraphResult {
-  ok: boolean;
-  result: {
-    title: string;
-    backdrop_path: string;
-  };
+  if (!parsed.success) {
+    return null;
+  }
+
+  return parsed.data.data.movie;
 }
 
 export async function getMetadata(movieId: string): Promise<Metadata> {
-  const json = (await (
-    await fetch(
-      `${process.env.NEXT_PUBLIC_MEDIA_SERVER_URL}/api/movie/${movieId}/open-graph`,
-    )
-  ).json()) as OpenGraphResult;
+  const movie = await getMovieDetail(movieId);
 
-  if (json.ok) {
+  if (!movie) {
     return {
-      title: json.result.title,
-      description: json.result.title,
-      openGraph: {
-        title: `${json.result.title}`,
-        images: json.result.backdrop_path,
-      }, // 페이지 설명
-    };
-  } else {
-    return {
-      title: "Series Error",
+      title: "Movie Error",
       openGraph: { title: "Bad Request" },
     };
   }
+
+  return {
+    title: movie.title,
+    description: movie.overview ?? movie.title,
+    openGraph: {
+      title: movie.title,
+      images: movie.backdropPath ?? movie.posterPath ?? undefined,
+    },
+  };
 }

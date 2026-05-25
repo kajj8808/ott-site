@@ -27,14 +27,14 @@ export default function ContentsList({
     <section className="mx-auto w-full">
       <ContentTitle title={title} subtitle={subtitle} />
       <div className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(min(310px,100%),1fr))] gap-2 overflow-hidden">
-        {contents?.map((content) => (
+        {contents?.map((content, index) => (
           <Link
             href={
               contentType === "EPISODE"
                 ? `/series/${content.id}`
                 : `/movies/${content.id}`
             }
-            key={content.id}
+            key={`${contentType}-${content.id}-${index}`}
             className="group relative flex cursor-pointer flex-col gap-1 rounded-md"
           >
             <div className="overflow-hidden rounded-md">

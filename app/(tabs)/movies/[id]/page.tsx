@@ -1,13 +1,13 @@
-/* import Header from "@/app/components/Header";
-import { daysAgo } from "@/app/utils/libs";
-import { getMetadata, getMovieDetial } from "./action";
-import { notFound } from "next/navigation";
 import Image from "next/image";
-import { PlayIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import Header from "@/app/components/Header";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { isBotRequest } from "@/app/lib/server/isBot";
+import { daysAgo } from "@/app/utils/libs";
+import { getMetadata, getMovieDetail } from "./action";
 
 export async function generateMetadata({
   params,
@@ -15,8 +15,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const metadata = await getMetadata(id);
-  return metadata;
+  return getMetadata(id);
 }
 
 export default async function Page({
@@ -29,55 +28,70 @@ export default async function Page({
     return;
   }
 
-  const { id } = await params;
   const userSession = await authWithUserSession();
-
   if (!userSession.user) {
     return notFound();
   }
 
-  const movie = await getMovieDetial(id, userSession.user.token);
+  const { id } = await params;
+  if (isNaN(+id)) {
+    return notFound();
+  }
 
+  const movie = await getMovieDetail(id);
   if (!movie) {
     return notFound();
   }
 
+  const image = movie.backdropPath ?? movie.posterPath;
+
   return (
     <div>
       <Header />
-      <div className="mt-20 flex justify-center">
-        <div className="w-full max-w-4xl">
-          <div className="relative aspect-video">
-            <Image src={movie.backdrop_path} fill alt={movie.title} />
-            <div className="to-background absolute top-0 left-0 h-full w-full bg-gradient-to-b from-transparent via-transparent"></div>
-            <div className="absolute bottom-3">
-              <h3 className="pl-3 text-2xl font-semibold sm:text-3xl">
-                {movie.title}
-              </h3>
+      <main className="mt-20 flex justify-center px-4 pb-8 sm:px-8">
+        <div className="w-full max-w-5xl">
+          {image ? (
+            <div className="relative aspect-video overflow-hidden rounded-sm">
+              <Image
+                src={image}
+                fill
+                alt={movie.title}
+                className="object-cover"
+              />
+              <div className="to-background absolute inset-0 bg-gradient-to-t from-black/90 via-black/10" />
+              <div className="absolute right-4 bottom-4 left-4">
+                <p className="text-sm font-semibold text-white/65">Movie</p>
+                <h1 className="text-3xl font-semibold sm:text-5xl">
+                  {movie.title}
+                </h1>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col gap-3 px-3 pb-5">
-            <span className="line-clamp-2 text-sm">{movie.overview}</span>
-            <p className="text-sm">{daysAgo(movie.updated_at)} 업데이트</p>
-          </div>
-          <div className="px-3">
-            <Link
-              href={`/watch/${movie.video_content_id}`}
-              className="inline-block"
-            >
-              <button className="hover:text-background flex cursor-pointer items-center gap-1 rounded-md border px-8 py-2 transition-colors hover:bg-white">
-                <PlayIcon className="size-8" />
-                <span className="">Play</span>
-              </button>
-            </Link>
+          ) : null}
+
+          <div className="flex flex-col gap-4 py-5">
+            {movie.overview ? (
+              <p className="max-w-3xl text-sm leading-6 text-white/75">
+                {movie.overview}
+              </p>
+            ) : null}
+            <div className="flex flex-wrap gap-3 text-sm text-white/55">
+              {movie.runtime ? <span>{movie.runtime} min</span> : null}
+              {movie.releaseDate ? <span>{movie.releaseDate}</span> : null}
+              {movie.content?.updatedAt ? (
+                <span>{daysAgo(movie.content.updatedAt)} 업데이트</span>
+              ) : null}
+            </div>
+            {movie.content?.id ? (
+              <Link
+                href={`/watch/${movie.content.id}`}
+                className="w-fit rounded-sm bg-white px-5 py-2 text-sm font-semibold text-black transition-colors hover:bg-white/80"
+              >
+                Play
+              </Link>
+            ) : null}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
-}
- */
-
-export default function Page() {
-  return <div>Movie Detail Page</div>;
 }
