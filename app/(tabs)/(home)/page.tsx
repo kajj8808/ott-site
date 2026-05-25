@@ -23,6 +23,7 @@ type RecommendationRail = NonNullable<
   HomeBundle["recommendationRails"]
 >["rails"][number];
 type ContentRail = Extract<RecommendationRail, { kind: "CONTENT" }>;
+type SeriesRail = Extract<RecommendationRail, { kind: "SERIES" }>;
 type SeriesListItem = SeriesCard & {
   updatedAt?: string;
 };
@@ -30,7 +31,7 @@ type SeriesListItem = SeriesCard & {
 function toSeriesList(items: SeriesListItem[]) {
   const uniqueItems = Array.from(
     new Map(items.map((item) => [item.id, item])).values(),
-  ).slice(0, 8);
+  ).slice(0, 7);
 
   return uniqueItems
     .map((item) => ({
@@ -45,7 +46,7 @@ function toSeriesList(items: SeriesListItem[]) {
 function toWatchingList(items: ContentCard[]) {
   const uniqueItems = Array.from(
     new Map(items.map((item) => [item.id, item])).values(),
-  ).slice(0, 8);
+  ).slice(0, 7);
 
   return uniqueItems
     .map((item) => ({
@@ -70,6 +71,10 @@ function toWatchingList(items: ContentCard[]) {
 
 function isContentRail(rail: RecommendationRail): rail is ContentRail {
   return rail.kind === "CONTENT";
+}
+
+function isSeriesRail(rail: RecommendationRail): rail is SeriesRail {
+  return rail.kind === "SERIES";
 }
 
 export default async function Home() {
@@ -110,7 +115,7 @@ export default async function Home() {
       <Header />
       <div className="flex flex-col items-center gap-6 pt-16 pb-8 sm:items-start sm:pt-20">
         {hero?.backdropPath ? (
-          <section className="relative h-[52vh] min-h-[320px] w-full overflow-hidden sm:h-[60vh] sm:min-h-[420px] lg:h-[68vh] lg:min-h-[520px]">
+          <section className="relative h-[52vh] min-h-80 w-full overflow-hidden sm:h-[60vh] sm:min-h-105 lg:h-[68vh] lg:min-h-130">
             <Image
               src={hero.backdropPath}
               alt={hero.title}
@@ -166,6 +171,25 @@ export default async function Home() {
             />
           ) : null}
 
+          {home.recommendationRails?.rails
+            .filter(isSeriesRail)
+            .filter((rail) => rail.id === "for-you")
+            .map((rail) => (
+              <ContentsList
+                key={rail.id}
+                subtitle="Series"
+                title={rail.title}
+                contents={toSeriesList(
+                  rail.items.map((item) => ({
+                    ...item.series,
+                    updatedAt:
+                      item.latestContent.updatedAt ?? item.series.updatedAt,
+                  })),
+                )}
+                contentType="EPISODE"
+              />
+            ))}
+
           <ContentsList
             subtitle="Series"
             title="Latest Series"
@@ -178,20 +202,6 @@ export default async function Home() {
             )}
             contentType="EPISODE"
           />
-
-          {home.recommendationRails?.rails
-            .filter(isContentRail)
-            .filter((rail) => rail.id === "for-you")
-            .map((rail) => (
-              <WatchingList
-                key={rail.id}
-                subtitle="Episodes & Movies"
-                title={rail.title}
-                contents={toWatchingList(
-                  rail.items.map((item) => item.content),
-                )}
-              />
-            ))}
 
           <ContentsList
             subtitle={`Q${home.currentlyAiring.quarter.quarter} ${home.currentlyAiring.quarter.year}`}
@@ -234,7 +244,8 @@ export default async function Home() {
           />
 
           {home.recommendationRails?.rails
-            .filter((rail) => rail.kind === "SERIES")
+            .filter(isSeriesRail)
+            .filter((rail) => rail.id !== "for-you")
             .map((rail) => (
               <ContentsList
                 key={rail.id}
