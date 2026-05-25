@@ -19,6 +19,10 @@ export const metadata: Metadata = {
 type HomeBundle = Awaited<ReturnType<typeof getHomeBundle>>;
 type SeriesCard = HomeBundle["series"]["items"][number];
 type ContentCard = HomeBundle["latest"]["items"][number];
+type RecommendationRail = NonNullable<
+  HomeBundle["recommendationRails"]
+>["rails"][number];
+type ContentRail = Extract<RecommendationRail, { kind: "CONTENT" }>;
 type SeriesListItem = SeriesCard & {
   updatedAt?: string;
 };
@@ -62,6 +66,10 @@ function toWatchingList(items: ContentCard[]) {
         backdrop_path: string;
       } => !!item.backdrop_path,
     );
+}
+
+function isContentRail(rail: RecommendationRail): rail is ContentRail {
+  return rail.kind === "CONTENT";
 }
 
 export default async function Home() {
@@ -158,19 +166,6 @@ export default async function Home() {
             />
           ) : null}
 
-          {home.recommendationRails?.rails
-            .filter((rail) => rail.kind === "CONTENT")
-            .map((rail) => (
-              <WatchingList
-                key={rail.id}
-                subtitle="For You"
-                title={rail.title}
-                contents={toWatchingList(
-                  rail.items.map((item) => item.content),
-                )}
-              />
-            ))}
-
           <ContentsList
             subtitle="Series"
             title="Latest Series"
@@ -184,48 +179,19 @@ export default async function Home() {
             contentType="EPISODE"
           />
 
-          {movieContents.length ? (
-            <ContentsList
-              subtitle="Movies"
-              title="Latest Movies"
-              contents={movieContents}
-              contentType="MOVIE"
-            />
-          ) : null}
-
           {home.recommendationRails?.rails
-            .filter((rail) => rail.kind === "SERIES")
+            .filter(isContentRail)
+            .filter((rail) => rail.id === "for-you")
             .map((rail) => (
-              <ContentsList
+              <WatchingList
                 key={rail.id}
-                subtitle="Series"
+                subtitle="Episodes & Movies"
                 title={rail.title}
-                contents={toSeriesList(
-                  rail.items.map((item) => ({
-                    ...item.series,
-                    updatedAt:
-                      item.latestContent.updatedAt ?? item.series.updatedAt,
-                  })),
+                contents={toWatchingList(
+                  rail.items.map((item) => item.content),
                 )}
-                contentType="EPISODE"
               />
             ))}
-
-          <ContentsList
-            subtitle={`Last ${home.newSeason.windowDays} days`}
-            title="New Seasons"
-            contents={toSeriesList(
-              home.newSeason.items.map((item) => ({
-                ...item.series,
-                updatedAt:
-                  item.series.updatedAt ??
-                  item.createdAt ??
-                  item.airDate ??
-                  undefined,
-              })),
-            )}
-            contentType="EPISODE"
-          />
 
           <ContentsList
             subtitle={`Q${home.currentlyAiring.quarter.quarter} ${home.currentlyAiring.quarter.year}`}
@@ -250,6 +216,63 @@ export default async function Home() {
               contentType="EPISODE"
             />
           ) : null}
+
+          <ContentsList
+            subtitle={`Last ${home.newSeason.windowDays} days`}
+            title="New Seasons"
+            contents={toSeriesList(
+              home.newSeason.items.map((item) => ({
+                ...item.series,
+                updatedAt:
+                  item.series.updatedAt ??
+                  item.createdAt ??
+                  item.airDate ??
+                  undefined,
+              })),
+            )}
+            contentType="EPISODE"
+          />
+
+          {home.recommendationRails?.rails
+            .filter((rail) => rail.kind === "SERIES")
+            .map((rail) => (
+              <ContentsList
+                key={rail.id}
+                subtitle="Series"
+                title={rail.title}
+                contents={toSeriesList(
+                  rail.items.map((item) => ({
+                    ...item.series,
+                    updatedAt:
+                      item.latestContent.updatedAt ?? item.series.updatedAt,
+                  })),
+                )}
+                contentType="EPISODE"
+              />
+            ))}
+
+          {movieContents.length ? (
+            <ContentsList
+              subtitle="Movies"
+              title="Latest Movies"
+              contents={movieContents}
+              contentType="MOVIE"
+            />
+          ) : null}
+
+          {home.recommendationRails?.rails
+            .filter(isContentRail)
+            .filter((rail) => rail.id !== "for-you")
+            .map((rail) => (
+              <WatchingList
+                key={rail.id}
+                subtitle="Episodes & Movies"
+                title={rail.title}
+                contents={toWatchingList(
+                  rail.items.map((item) => item.content),
+                )}
+              />
+            ))}
         </div>
         <footer className="bg-background fixed right-0 bottom-0 m-2 flex flex-col items-center rounded-sm p-3">
           <h4 className="text-sm text-neutral-600">1.0.0 BETA</h4>
