@@ -113,7 +113,7 @@ export default async function Home() {
   return (
     <div>
       <Header />
-      <div className="flex flex-col items-center gap-6 pt-16 pb-8 sm:items-start sm:pt-20">
+      <div className="flex flex-col items-center gap-6 pt-16 pb-8 sm:items-start">
         {hero?.backdropPath ? (
           <section className="relative h-[52vh] min-h-80 w-full overflow-hidden sm:h-[60vh] sm:min-h-105 lg:h-[68vh] lg:min-h-130">
             <Image
@@ -124,7 +124,7 @@ export default async function Home() {
               sizes="100vw"
               className="object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" />
             <div className="to-background absolute inset-x-0 bottom-0 h-36 bg-gradient-to-b from-transparent" />
             <div className="absolute right-4 bottom-8 left-4 flex max-w-2xl flex-col gap-3 sm:bottom-12 sm:left-8 sm:gap-4 lg:bottom-16">
               <p className="text-sm font-semibold text-white/65">

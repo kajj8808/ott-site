@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ContentTitle from "./ContentTitle";
-import { timeAgo } from "../utils/libs";
+import { cls, timeAgo } from "../utils/libs";
 
 interface ContentList {
   id: number;
@@ -37,17 +37,33 @@ export default function ContentsList({
             key={`${contentType}-${content.id}-${index}`}
             className="group relative flex cursor-pointer flex-col gap-1 rounded-md"
           >
-            <div className="overflow-hidden rounded-md">
-              <Image
-                width={320}
-                height={160}
-                src={content.thumbnail!}
-                alt={`${content.title}-backdrop`}
-                className="w-full transition-transform group-hover:scale-110"
-              />
+            <div className="relative overflow-hidden rounded-md">
+              {contentType === "EPISODE" ? (
+                <div>
+                  <Image
+                    width={320}
+                    height={160}
+                    src={content.thumbnail!}
+                    alt={`${content.title}-backdrop`}
+                    className="w-full transition-transform group-hover:scale-110"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-2/3">
+                  <Image
+                    fill
+                    src={content.thumbnail!}
+                    alt={`${content.title}-backdrop`}
+                    className="object-cover transition-transform group-hover:scale-110"
+                  />
+                </div>
+              )}
             </div>
+
             <div className="absolute bottom-0 z-50 w-full p-2 text-shadow-current">
-              <span className="text-sm font-semibold">{content.title}</span>
+              <span className="line-clamp-1 text-sm font-semibold">
+                {content.title}
+              </span>
               <div className="flex justify-between">
                 {content.seasonName && content.episodeNumber && (
                   <span className="text-xs opacity-70">

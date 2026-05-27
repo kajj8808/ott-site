@@ -6,6 +6,7 @@ import Header from "@/app/components/Header";
 import ContentsList from "@/app/components/ContentList";
 import { authWithUserSession } from "@/app/lib/server/auth";
 import { getCatalogMovies } from "./action";
+import { cls } from "@/app/utils/libs";
 
 export const metadata: Metadata = {
   title: "movies",
@@ -94,11 +95,12 @@ export default async function MoviesPage({
                 <Link
                   key={filter.value}
                   href={sortHref(filter.value)}
-                  className={`rounded-sm border px-3 py-1.5 text-sm transition-colors ${
+                  className={cls(
+                    "rounded-sm border px-3 py-1.5 text-sm transition-colors",
                     active
                       ? "border-white bg-white text-black"
-                      : "border-white/15 text-white/75 hover:border-white/40 hover:text-white"
-                  }`}
+                      : "border-white/15 text-white/75 hover:border-white/40 hover:text-white",
+                  )}
                 >
                   {filter.label}
                 </Link>
