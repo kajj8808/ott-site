@@ -60,8 +60,7 @@ export default async function Page({
               />
               <div className="to-background absolute inset-0 bg-gradient-to-t from-black/90 via-black/10" />
               <div className="absolute right-4 bottom-4 left-4">
-                <p className="text-sm font-semibold text-white/65">Movie</p>
-                <h1 className="text-3xl font-semibold sm:text-5xl">
+                <h1 className="line-clamp-1 text-3xl font-semibold sm:text-5xl">
                   {movie.title}
                 </h1>
               </div>
@@ -70,12 +69,12 @@ export default async function Page({
 
           <div className="flex flex-col gap-4 py-5">
             {movie.overview ? (
-              <p className="max-w-3xl text-sm leading-6 text-white/75">
+              <p className="line-clamp-3 text-sm leading-6 text-white/75">
                 {movie.overview}
               </p>
             ) : null}
             <div className="flex flex-wrap gap-3 text-sm text-white/55">
-              {movie.runtime ? <span>{movie.runtime} min</span> : null}
+              {movie.runtime ? <span>{movie.runtime}분</span> : null}
               {movie.releaseDate ? <span>{movie.releaseDate}</span> : null}
               {movie.content?.updatedAt ? (
                 <span>{daysAgo(movie.content.updatedAt)} 업데이트</span>

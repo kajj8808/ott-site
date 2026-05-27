@@ -40,7 +40,7 @@ export default async function SearchPage({
       .map((item) => ({
         id: item.id,
         title: item.title,
-        thumbnail: item.backdropPath ?? item.posterPath ?? null,
+        thumbnail: item.posterPath ?? item.backdropPath ?? null,
       }))
       .filter((item) => !!item.thumbnail) ?? [];
 
