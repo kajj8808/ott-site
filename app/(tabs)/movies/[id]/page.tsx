@@ -51,22 +51,21 @@ export default async function Page({
       <main className="mt-20 flex justify-center px-4 pb-8 sm:px-8">
         <div className="w-full max-w-5xl">
           {image ? (
-            <div className="relative aspect-video overflow-hidden rounded-sm">
+            <div className="relative aspect-video overflow-hidden">
               <Image
                 src={image}
                 fill
                 alt={movie.title}
                 className="object-cover"
               />
-              <div className="to-background absolute inset-0 bg-gradient-to-t from-black/90 via-black/10" />
-              <div className="absolute right-4 bottom-4 left-4">
-                <h1 className="line-clamp-1 text-3xl font-semibold sm:text-5xl">
+              <div className="to-background absolute top-0 left-0 h-full w-full bg-gradient-to-b from-transparent via-transparent"></div>
+              <div className="absolute bottom-3">
+                <h1 className="line-clamp-1 pl-3 text-2xl font-semibold sm:text-3xl">
                   {movie.title}
                 </h1>
               </div>
             </div>
           ) : null}
-
           <div className="flex flex-col gap-4 py-5">
             {movie.overview ? (
               <p className="line-clamp-3 text-sm leading-6 text-white/75">
