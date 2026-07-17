@@ -9,6 +9,7 @@ import {
 } from "./schema";
 import { z } from "zod";
 
+
 export interface Episode {
   series: {
     id: number;
@@ -245,7 +246,7 @@ export async function getHomeBundle({ userToken }: { userToken: string }) {
 
   if (!parsed.success) {
     throw new Error(
-      "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.",
+      `서버 응답 형식이 올바르지 않습니다. 상세 에러: ${JSON.stringify(parsed.error.issues, null, 2)}`
     );
   }
 

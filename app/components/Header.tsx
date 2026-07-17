@@ -45,27 +45,43 @@ export default function Header() {
       </div>
 
       <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
-        {isSearchOpen ? (
-          <motion.form
-            onSubmit={handleSearch}
-            className="w-full max-w-64"
-            layoutId="search-box"
-          >
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search"
-              className="bg-background/70 w-full rounded-2xl border border-white/15 px-3 py-1.5 text-sm transition-colors outline-none placeholder:text-white/40 focus:border-white/40"
-            />
-          </motion.form>
-        ) : (
-          <motion.div className="flex h-8.5 items-center" layoutId="search-box">
+        <motion.form
+          onSubmit={handleSearch}
+          initial={false}
+          animate={{
+            width: isSearchOpen ? "16rem" : "1.25rem",
+          }}
+          transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+          className="relative flex items-center h-8.5 overflow-hidden rounded-2xl cursor-pointer"
+          onClick={() => {
+            if (!isSearchOpen) setIsSearchOpen(true);
+          }}
+        >
+          <div className="absolute left-0 flex h-full items-center pl-1 pointer-events-none z-10">
             <MagnifyingGlassIcon
-              className="size-5 cursor-pointer"
-              onClick={() => setIsSearchOpen(true)}
+              className="size-5 text-white flex-shrink-0"
             />
-          </motion.div>
-        )}
+          </div>
+          
+          <motion.input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search"
+            className="bg-background/70 w-full h-full rounded-2xl border border-white/15 py-1.5 pl-8 pr-3 text-sm outline-none placeholder:text-white/40 focus:border-white/40"
+            initial={false}
+            animate={{
+              opacity: isSearchOpen ? 1 : 0,
+            }}
+            transition={{ duration: 0.2 }}
+            style={{
+              pointerEvents: isSearchOpen ? "auto" : "none",
+            }}
+            autoFocus={isSearchOpen}
+            onBlur={() => {
+              if (!query) setIsSearchOpen(false);
+            }}
+          />
+        </motion.form>
         <PowerIcon
           onClick={destroyUserSession}
           className="size-5 cursor-pointer transition-colors hover:text-red-500"

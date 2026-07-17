@@ -96,7 +96,7 @@ export default async function Home() {
     }),
     getLatestMovies({ limit: 8 }),
   ]);
-  const hero = home.latestSeries.items[0]?.series;
+  const hero = home.currentlyAiring.items.find((item) => !!item.series.backdropPath)?.series;
   const movieContents = latestMovies.items
     .map((item) => ({
       id: item.id,
@@ -128,7 +128,7 @@ export default async function Home() {
             <div className="to-background absolute inset-x-0 bottom-0 h-36 bg-gradient-to-b from-transparent" />
             <div className="absolute right-4 bottom-8 left-4 flex max-w-2xl flex-col gap-3 sm:bottom-12 sm:left-8 sm:gap-4 lg:bottom-16">
               <p className="text-sm font-semibold text-white/65">
-                Latest Series
+                Currently Airing
               </p>
               <h1 className="text-3xl font-bold sm:text-5xl lg:text-6xl">
                 {hero.title}
@@ -157,7 +157,7 @@ export default async function Home() {
                 .filter((item) => !!item.content.thumbnail)
                 .map((item) => ({
                   id: item.videoContentId,
-                  title: item.content.title,
+                  title: item.content.title ?? "Untitled",
                   backdrop_path: item.content.thumbnail!,
                   current_time: item.currentTime,
                   total_duration: item.totalDuration,

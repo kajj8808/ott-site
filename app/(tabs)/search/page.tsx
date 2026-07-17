@@ -77,7 +77,7 @@ export default async function SearchPage({
           <h1 className="text-2xl font-semibold">
             {query ? `"${query}"` : "Find something to watch"}
           </h1>
-        </div>
+                  </div>
 
         {query && !hasResults ? (
           <p className="text-sm text-white/60">검색 결과가 없습니다.</p>

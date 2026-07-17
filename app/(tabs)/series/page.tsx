@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -51,7 +52,7 @@ export default async function SeriesPage({
     .filter((item) => !!item.thumbnail);
 
   const hasPrev = series.page > 1;
-  const hasNext = series.page * series.limit < series.total;
+  const hasNext = series.items.length === series.limit;
 
   const filterHref = (value: string) => {
     const next = new URLSearchParams();
@@ -112,25 +113,58 @@ export default async function SeriesPage({
           contentType="EPISODE"
         />
 
-        <div className="flex items-center justify-center gap-3">
-          {hasPrev ? (
-            <Link
-              href={pageHref(series.page - 1)}
-              className="rounded-sm border border-white/15 px-3 py-1.5 text-sm hover:border-white/40"
-            >
-              Previous
-            </Link>
-          ) : null}
-          <span className="text-sm text-white/60">Page {series.page}</span>
-          {hasNext ? (
-            <Link
-              href={pageHref(series.page + 1)}
-              className="rounded-sm border border-white/15 px-3 py-1.5 text-sm hover:border-white/40"
-            >
-              Next
-            </Link>
-          ) : null}
-        </div>
+        
+        <div className="flex items-center justify-center gap-2 mt-8">
+            {hasPrev ? (
+              <Link
+                href={pageHref(series.page - 1)}
+                className="rounded-md border border-white/20 px-3 py-1.5 text-sm transition-colors hover:bg-white/10"
+              >
+                Prev
+              </Link>
+            ) : (
+              <span className="rounded-md border border-white/10 px-3 py-1.5 text-sm text-white/30 cursor-not-allowed">
+                Prev
+              </span>
+            )}
+            
+            <div className="flex items-center gap-1 mx-2">
+              {Array.from({ length: Math.ceil(series.total / series.limit) })
+                .map((_, i) => i + 1)
+                .filter(p => p === 1 || p === Math.ceil(series.total / series.limit) || Math.abs(p - series.page) <= 2)
+                .map((p, i, arr) => (
+                  <React.Fragment key={p}>
+                    {i > 0 && arr[i - 1] !== p - 1 && (
+                      <span className="px-2 text-white/50">...</span>
+                    )}
+                    <Link
+                      href={pageHref(p)}
+                      className={`flex size-8 items-center justify-center rounded-md text-sm transition-colors ${
+                        p === series.page
+                          ? "bg-white text-black font-semibold"
+                          : "hover:bg-white/10 text-white/70"
+                      }`}
+                    >
+                      {p}
+                    </Link>
+                  </React.Fragment>
+                ))}
+            </div>
+
+            {hasNext ? (
+              <Link
+                href={pageHref(series.page + 1)}
+                className="rounded-md border border-white/20 px-3 py-1.5 text-sm transition-colors hover:bg-white/10"
+              >
+                Next
+              </Link>
+            ) : (
+              <span className="rounded-md border border-white/10 px-3 py-1.5 text-sm text-white/30 cursor-not-allowed">
+                Next
+              </span>
+            )}
+          </div>
+
       </main>
     </div>
   );

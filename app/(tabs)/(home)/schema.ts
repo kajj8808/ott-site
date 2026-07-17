@@ -112,6 +112,13 @@ const RecommendationRailSchema = z.discriminatedUnion("kind", [
     ),
     total: z.number(),
   }),
+  z.object({
+    id: z.string(),
+    title: z.string(),
+    kind: z.literal("WATCH_RECORD"),
+    items: z.array(z.any()), // using any to avoid defining the whole ContinueWatchingItemSchema here for simplicity
+    total: z.number(),
+  }),
 ]);
 
 export const HomeLatestResponseSchema = z.object({
