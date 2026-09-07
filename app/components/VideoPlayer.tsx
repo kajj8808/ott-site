@@ -31,6 +31,8 @@ export default function VideoPlayer({
   const [, startWatchProgressSyncTransition] = useTransition();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const contentNavigatorRef = useRef<HTMLDivElement | null>(null);
+  const isAdjustingRef  = useRef(false)
+
   const [isHover, setIsHover] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -232,6 +234,7 @@ export default function VideoPlayer({
         setCurrentTime(video.currentTime);
       };
 
+
       video.addEventListener("loadedmetadata", handleLoadedMetadata);
       video.addEventListener("timeupdate", handleTimeUpdate);
 
@@ -252,6 +255,8 @@ export default function VideoPlayer({
     if (!showContentNavigator) {
       return;
     }
+
+    
 
     const onDocumentMouseDown = (event: MouseEvent) => {
       if (
@@ -274,6 +279,25 @@ export default function VideoPlayer({
     };
   }, [showContentNavigator]);
 
+  const handleKeyDown = (
+  e: React.KeyboardEvent<HTMLDivElement>
+) => {
+  const video = videoRef.current;
+  if (!video) return;
+
+  switch (e.key) {
+    case 'ArrowRight':
+      e.preventDefault();
+      video.currentTime = Math.min(video.currentTime + 5, video.duration);
+      break;
+
+    case 'ArrowLeft':
+      e.preventDefault();
+      video.currentTime = Math.max(video.currentTime - 5, 0);
+      break;
+  }
+};
+
   /* Case.1 다음화 클릭시 현재 재생 정보 기록 */
   /* Case.2 영상을 모두 보았을 경우 다음 화로 넘어가게. -> 이것도  똑같이. */
   /* Case 3. 그럼 중간에  30초? 10 초정도 간격으로 업데이트 사항 업데이트 .. */
@@ -281,7 +305,7 @@ export default function VideoPlayer({
   return (
     <div
       className="group relative flex h-dvh w-full items-center"
-      onMouseDown={onMouseMove}
+      onMouseDown={onMouseMove}    onKeyDown={handleKeyDown}
     >
       <Link
         href={goBackLink}
